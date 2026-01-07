@@ -1,0 +1,32 @@
+{
+  "name": "bilderbote-reloaded",
+  "version": "1.0.0",
+  "description": "A bot posting random images from Wikimedia Commons to social media.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stralau/bilderbote-reloaded.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/stralau/bilderbote-reloaded/issues"
+  },
+  "homepage": "https://github.com/stralau/bilderbote-reloaded#readme",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.159",
+    "@types/aws-sdk": "^0.0.42",
+    "@types/express": "^4.17.1",
+    "aws-sdk": "^2.1693.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
