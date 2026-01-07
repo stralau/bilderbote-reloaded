@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Post Images Reloaded
+
+Resources:
+  PostImagesReloaded:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: dist/handler.handler
+      Runtime: nodejs24.x
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          API_BASE_URL: https://example.com
+      Events:
+        ApiRequest:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
