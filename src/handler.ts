@@ -1,11 +1,13 @@
-import {fetchRandomFileLocation} from "./clients/wikimedia";
+import {fetchWikimediaImage} from "./clients/wikimedia";
 
 export const handler = async () => {
 
-  let loc = await fetchRandomFileLocation()
+  console.log("fetching image")
+
+  let loc = await fetchWikimediaImage()
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: loc }),
+    body: JSON.stringify({ message: loc.response.file.urls.file }),
   };
 };
