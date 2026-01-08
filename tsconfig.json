@@ -2,11 +2,13 @@
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
-    "target": "es6",
+    "target": "es2022",
+    "skipLibCheck": true,
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
-    "types" :["jest"]
+    "types" :["jest"],
+    "lib": ["es2022", "DOM"]
   },
   "lib": ["es2015"]
 }

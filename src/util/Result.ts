@@ -17,6 +17,10 @@ export class Result<T, E = Error > {
     return this.success === true ? Result.ok(fn(this.value as any as U)) : Result.err<U, E>(this.error)
   }
 
+  flatMap<T,U>(fn: (T) => Result<U, E>): Result<U, E> {
+    return this.success === true ? fn(this.value as any as U) : Result.err<U, E>(this.error)
+  }
+
   mapError<E2>(fn: (E) => E2): Result<T, E2> {
     return this.success === true ? Result.ok(this.value as any as T) : Result.err<T, E2>(fn(this.error))
   }

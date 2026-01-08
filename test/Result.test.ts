@@ -1,4 +1,4 @@
-import {Result} from "../src/types/Result";
+import {Result} from "../src/./util/Result";
 import {describe, expect, it} from "@jest/globals";
 
 describe('Result.ok', () => {
