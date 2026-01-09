@@ -32,6 +32,7 @@
     "@types/xml2js": "^0.4.14",
     "dotenv": "^17.2.3",
     "jest": "^30.2.0",
+    "node-recorder": "^3.0.1",
     "sharp": "^0.34.5",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
