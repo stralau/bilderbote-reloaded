@@ -1,69 +1,70 @@
 import {ContentType, contentTypeFrom, matchesContentType, MediaType} from "@ganbarodigital/ts-lib-mediatype/lib/v1"
 import {Result} from "../util/Result";
 import {retry} from "../util/Retry";
-import {fetchImage, fetchMediaType, fetchRandomFileLocation, fetchXmlDesc} from "../client/wikimedia";
+import {Wikimedia} from "../client/wikimedia";
 import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types";
 
+export class WikimediaService {
+  private static knownMediaTypes: ContentType[] =
+    ["image/jpeg", "image/png", "image/gif"].map(s => contentTypeFrom(s))
 
-export async function fetchWikimediaImage(): Promise<WikimediaObject> {
-  const xmlDesc = await retry({
-    fn: fetchImageDescription,
-    attempts: 10,
-    isFatal: e => e instanceof HttpStatusError && e.status == 429
-  }).then(r => r.get())
+  private static maxSizeInBytes = 5242880
 
-  console.log(JSON.stringify(xmlDesc, null, 2))
+  public constructor(private readonly wikimedia: Wikimedia) {}
 
-  const description = getDescription(xmlDesc);
+  public fetchImage = async () : Promise<WikimediaObject> => {
+    const xmlDesc = await retry({
+      fn: this.fetchImageDescription,
+      attempts: 10,
+      isFatal: e => e instanceof HttpStatusError && e.status == 429
+    }).then(r => r.get())
 
-  return {
-    description: description,
-    image: await fetchImage(xmlDesc.response.file.urls.file),
-  }
-}
+    const description = this.getDescription(xmlDesc);
 
-async function fetchImageDescription(): Promise<Result<XmlDesc>> {
-
-  const location = await fetchRandomFileLocation()
-  const xmlDesc = await fetchXmlDesc(location)
-
-  const imageLocation = xmlDesc.response.file.urls.file
-
-  const mediaType = await fetchMediaType(imageLocation)
-
-  return mediaType.flatMap(mediaType => validate(xmlDesc, mediaType))
-    .onError(err => console.log(err.message))
-}
-
-function validate(xmlDesc: XmlDesc, mediaType: MediaType): Result<XmlDesc> {
-
-  if (!matchesContentType(mediaType, knownMediaTypes)) {
-    return Result.err(Error("Image is not a known media type: " + mediaType))
+    return {
+      description: description,
+      image: await this.wikimedia.fetchImage(xmlDesc.response.file.urls.file),
+    }
   }
 
-  if (xmlDesc.response.file.size > maxSizeInBytes) {
-    return Result.err(Error("Image is too large: " + xmlDesc.response.file.size + " bytes"))
+  fetchImageDescription = async(): Promise<Result<XmlDesc>> => {
+
+    const location = await this.wikimedia.fetchRandomFileLocation()
+    const xmlDesc = await this.wikimedia.fetchXmlDesc(location)
+
+    const imageLocation = xmlDesc.response.file.urls.file
+
+    const mediaType = await this.wikimedia.fetchMediaType(imageLocation)
+
+    return mediaType.flatMap(mediaType => this.validate(xmlDesc, mediaType))
+      .onError(err => console.log(err.message))
   }
 
-  return Result.ok(xmlDesc)
-}
+  validate = (xmlDesc: XmlDesc, mediaType: MediaType): Result<XmlDesc> => {
 
-function getDescription(xmlDesc: XmlDesc) {
-  let descriptions = xmlDesc.response.description.language;
+    if (!matchesContentType(mediaType, WikimediaService.knownMediaTypes)) {
+      return Result.err(Error("Image is not a known media type: " + mediaType))
+    }
 
-  if (!Array.isArray(descriptions)) {
-    descriptions = [descriptions];
+    if (xmlDesc.response.file.size > WikimediaService.maxSizeInBytes) {
+      return Result.err(Error("Image is too large: " + xmlDesc.response.file.size + " bytes"))
+    }
+
+    return Result.ok(xmlDesc)
   }
 
-  return (
-    descriptions && descriptions.every(d => d && d.$ && d._) ?
-      (descriptions.find(l => l.$.code == "default") || descriptions[0])._
-      : xmlDesc.response.file.name
-  ).trim().slice(0, 300);
+  getDescription = (xmlDesc: XmlDesc): string => {
+    let descriptions = xmlDesc.response.description.language;
+
+    if (!Array.isArray(descriptions)) {
+      descriptions = [descriptions];
+    }
+
+    return (
+      descriptions && descriptions.every(d => d && d.$ && d._) ?
+        (descriptions.find(l => l.$.code == "default") || descriptions[0])._
+        : xmlDesc.response.file.name
+    ).trim().slice(0, 300);
+  }
 }
-
-const knownMediaTypes: ContentType[] =
-  ["image/jpeg", "image/png", "image/gif"].map(s => contentTypeFrom(s))
-
-const maxSizeInBytes = 5242880
 

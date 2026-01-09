@@ -3,6 +3,14 @@ export interface WikimediaObject {
   image: Blob
 }
 
+export interface Elem {
+  _: string
+  $: {
+    code: string
+  }
+}
+
+
 export interface XmlDesc {
   response: {
     file: {
@@ -21,12 +29,7 @@ export interface XmlDesc {
       }
     }
     description: {
-      language: [{
-        _: string
-        $: {
-          code: string
-        }
-      }],
+      language: [Elem] | Elem,
     }
   }
 }

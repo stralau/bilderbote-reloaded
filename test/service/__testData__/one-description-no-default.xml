@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response version="0.92">
+    <file>
+        <name>Uniformes armée belge.jpg</name>
+        <title>File:Uniformes_armée_belge.jpg</title>
+        <urls>
+            <file>https://upload.wikimedia.org/wikipedia/commons/b/b2/Uniformes_arm%C3%A9e_belge.jpg</file>
+            <description>http://commons.wikimedia.org/wiki/File:Uniformes_armée_belge.jpg</description>
+        </urls>
+        <size>41712</size>
+        <width>410</width>
+        <height>536</height>
+        <uploader>Barbe-Noire</uploader>
+        <upload_date>2014-08-07T14:04:10Z</upload_date>
+        <sha1>b66b8adde8adec4a6bc4555bcf239340eeefbc10</sha1>
+    </file>
+    <description>
+        <language code="fr" name="Français&amp;#160;&amp;#58; ">Trompettes de différents régiments de la cavalerie belge
+            vers 1890.
+        </language>
+    </description>
+    <categories>
+        <category>Fur fashion in 1893</category>
+        <category>Historical uniforms of the Belgian army</category>
+        <category>Military fur headdress in art</category>
+        <category>Template Unknown (author)</category>
+    </categories>
+    <licenses>
+        <license>
+            <name>CC-PD-Mark</name>
+        </license>
+        <license>
+            <name>PD Old</name>
+        </license>
+        <license>
+            <name>PD-old missing SDC copyright status</name>
+        </license>
+    </licenses>
+</response>

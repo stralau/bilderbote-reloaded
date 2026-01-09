@@ -5,7 +5,8 @@ const config: Config = {
   testEnvironment: 'node',
   verbose: true,
   testMatch: ['**/?(*.)+(spec|test).[jt]s?(x)'],
-  moduleFileExtensions: ['ts', 'js']
+  moduleFileExtensions: ['ts', 'js'],
+  setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
 };
 
 export default config;
