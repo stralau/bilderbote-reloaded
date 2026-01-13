@@ -5,6 +5,7 @@ import fs from "node:fs";
 import {parseStringPromise} from "xml2js";
 import {XmlDesc} from "../../src/types/types";
 import {expect} from "@jest/globals";
+import path from "node:path";
 
 export class TestClient extends WikimediaClient {
   private randomFileLocation: string
@@ -41,7 +42,7 @@ export class Test {
 }
 
 export function withXmlDesc(fileName: string): (testFunction: (xmlDesc: XmlDesc) => void) => Promise<void> {
-  const fileContents = fs.readFileSync(__dirname + `/__testData__/${fileName}.xml`, "utf8")
+  const fileContents = fs.readFileSync(path.join(__dirname, "__testData__", `${fileName}.xml`), "utf8")
 
   return testFunction => parseStringPromise(fileContents, {explicitArray: false}).then(testFunction)
 }

@@ -3,6 +3,7 @@ import {Result} from "../util/Result";
 import {retry} from "../util/Retry";
 import {Wikimedia} from "../client/wikimedia";
 import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types";
+import {htmlToText} from "html-to-text";
 
 export class WikimediaService {
   private static knownMediaTypes: ContentType[] =
@@ -10,16 +11,17 @@ export class WikimediaService {
 
   private static maxSizeInBytes = 5242880
 
-  public constructor(private readonly wikimedia: Wikimedia) {}
+  public constructor(private readonly wikimedia: Wikimedia) {
+  }
 
-  public fetchImage = async () : Promise<WikimediaObject> => {
+  public fetchImage = async (): Promise<WikimediaObject> => {
     const xmlDesc = await retry({
       fn: this.fetchImageDescription,
       attempts: 10,
       isFatal: e => e instanceof HttpStatusError && e.status == 429
     }).then(r => r.get())
 
-    const description = this.getDescription(xmlDesc);
+    const description = await this.getDescription(xmlDesc);
 
     return {
       description: description,
@@ -27,7 +29,7 @@ export class WikimediaService {
     }
   }
 
-  fetchImageDescription = async(): Promise<Result<XmlDesc>> => {
+  fetchImageDescription = async (): Promise<Result<XmlDesc>> => {
 
     const location = await this.wikimedia.fetchRandomFileLocation()
     const xmlDesc = await this.wikimedia.fetchXmlDesc(location)
@@ -60,11 +62,17 @@ export class WikimediaService {
       descriptions = [descriptions];
     }
 
-    return (
-      descriptions && descriptions.every(d => d && d.$ && d._) ?
-        (descriptions.find(l => l.$.code == "default") || descriptions[0])._
-        : xmlDesc.response.file.name
-    ).trim().slice(0, 300);
+    const description = descriptions && descriptions.every(d => d && d.$ && d._) ?
+      (descriptions.find(l => l.$.code == "default") || descriptions[0])._
+      : xmlDesc.response.file.name;
+
+
+    return this.sanitiseDescription(description);
+
   }
+
+  sanitiseDescription = (description: string): string =>
+    htmlToText(description).replace(/\s+/g, ' ').replace(/\n+/g, ' ').trim()
+
 }
 

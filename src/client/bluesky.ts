@@ -31,7 +31,7 @@ export class Bluesky {
       .then(r => r.data.blob)
 
     return await this.agent.post({
-      text: image.description,
+      text: image.description.slice(0, 300),
       embed: {
         $type: 'app.bsky.embed.images',
         images: [{
