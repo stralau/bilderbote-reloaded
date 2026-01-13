@@ -11,3 +11,7 @@ class Pair<T1, T2> {
     return this._t2;
   }
 }
+
+export function asArray<T>(value: T | T[]): T[] {
+  return Array.isArray(value) ? value : [value];
+}

@@ -1,8 +1,9 @@
 import {ContentType, contentTypeFrom, matchesContentType, MediaType} from "@ganbarodigital/ts-lib-mediatype/lib/v1"
-import {Result} from "../util/Result";
 import {retry} from "../util/Retry";
 import {Wikimedia} from "../client/wikimedia";
 import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types";
+import {asArray} from "../util/util";
+import {Result} from "../util/Result";
 import {htmlToText} from "html-to-text";
 
 export class WikimediaService {
@@ -23,9 +24,18 @@ export class WikimediaService {
 
     const description = await this.getDescription(xmlDesc);
 
+    const fileSection = xmlDesc.response.file;
+    const licenses = asArray(xmlDesc.response.licenses.license);
+
     return {
+      attribution: {
+        author: fileSection.author ? fileSection.author : fileSection.uploader,
+        date: fileSection.date ? fileSection.date : fileSection.upload_date,
+        licence: licenses.length > 0 ? licenses[0].name : "",
+        url: fileSection.urls.description,
+      },
       description: description,
-      image: await this.wikimedia.fetchImage(xmlDesc.response.file.urls.file),
+      image: await this.wikimedia.fetchImage(fileSection.urls.file)
     }
   }
 
@@ -56,11 +66,7 @@ export class WikimediaService {
   }
 
   getDescription = (xmlDesc: XmlDesc): string => {
-    let descriptions = xmlDesc.response.description.language;
-
-    if (!Array.isArray(descriptions)) {
-      descriptions = [descriptions];
-    }
+    let descriptions = asArray(xmlDesc.response.description.language);
 
     const description = descriptions && descriptions.every(d => d && d.$ && d._) ?
       (descriptions.find(l => l.$.code == "default") || descriptions[0])._

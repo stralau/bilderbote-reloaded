@@ -1,6 +1,14 @@
+export interface Attribution {
+  author: string,
+  date: string,
+  licence: string,
+  url: string,
+}
+
 export interface WikimediaObject {
   description: string
   image: Blob
+  attribution: Attribution
 }
 
 export interface Elem {
@@ -16,6 +24,10 @@ export interface XmlDesc {
     file: {
       name: string
       title: string
+      author: string;
+      uploader: string;
+      date: string;
+      upload_date: string;
       size: number
       urls: {
         file: string
@@ -24,9 +36,9 @@ export interface XmlDesc {
       }
     }
     licenses: {
-      license: {
+      license: [{
         name: string
-      }
+      }]
     }
     description: {
       language: [Elem] | Elem,

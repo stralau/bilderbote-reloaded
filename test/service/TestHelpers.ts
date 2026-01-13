@@ -11,7 +11,6 @@ export class TestClient extends WikimediaClient {
   private randomFileLocation: string
 
   public override async fetchRandomFileLocation(): Promise<string> {
-    console.log(this.randomFileLocation ? "Using random file location" : "Not using random file location")
     return this.randomFileLocation ? this.randomFileLocation : await super.fetchRandomFileLocation()
   }
 

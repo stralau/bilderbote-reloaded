@@ -2,7 +2,7 @@ import {expect} from "@jest/globals";
 import {Test, withXmlDesc} from "./TestHelpers";
 import {Elem} from "../../src/types/types";
 
-test('Posts image', async () => {
+test('Fetches image', async () => {
 
   const service = new Test()
     .withWikimediaFile("ISS039-E-14528_-_View_of_Earth.jpg")
@@ -12,6 +12,10 @@ test('Posts image', async () => {
 
   expect(image).toBeDefined()
   expect(image.description).toBe("View of Earth taken during ISS Expedition 39.")
+  expect(image.attribution.author).toBe("Askeuhd")
+  expect(image.attribution.date).toBe("2021-05-24T23:52:32Z")
+  expect(image.attribution.licence).toBe("PD NASA")
+  expect(image.attribution.url).toBe("http://commons.wikimedia.org/wiki/File:ISS039-E-14528_-_View_of_Earth.jpg")
 })
 
 test('Take file title if no description', async () => {
