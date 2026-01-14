@@ -16,6 +16,12 @@ interface BlueskyRepostConfig {
   repostClientHandle: string
 }
 
+interface BlueskyAttributionConfig {
+  username: string,
+  password: string,
+  imageClientHandle: string,
+}
+
 export class BlueskyRepost {
   private readonly agent: AtpAgent;
   private imageClientDID: string
@@ -74,53 +80,24 @@ export class BlueskyRepost {
 
 }
 
-export class BlueskyImage {
+export class BlueskyAttribution {
   private readonly agent: AtpAgent;
 
-  constructor(private readonly config: BlueskyConfig) {
+  constructor(private readonly config: BlueskyAttributionConfig) {
     this.agent = new AtpAgent({
       service: 'https://bsky.social',
     })
   }
 
-
-  async post(image: WikimediaObject): Promise<void> {
-
-    console.log("Logging in...")
-    await this.agent.login({identifier: this.config.username, password: this.config.password})
-    console.log(`Posting image: ${image.attribution.url}...`)
-    const {uri, cid} = await this.postImage(image);
-    console.log("Just posted! URI: ", uri, " CID: ", cid);
-    console.log(`Posting attribution for ${image.attribution.url}...`)
-    await this.postAttribution(image.attribution, cid, uri)
-    console.log("Done!")
-  }
-
-  private async postImage(image: WikimediaObject): Promise<{ uri: string, cid: string }> {
-    const blob = await downScale(Buffer.from(await image.image.arrayBuffer()), 976_560)
-
-    const blobRef = await this.agent.uploadBlob(blob)
-      .then(r => r.data.blob)
-
-    return await this.agent.post({
-      text: image.description.slice(0, 300),
-      embed: {
-        $type: 'app.bsky.embed.images',
-        images: [{
-          image: blobRef,
-          alt: image.description
-        }]
-      }
-    });
-  }
-
-  private async postAttribution(attr: Attribution, cid: string, uri: string) {
+  async post(attr: Attribution, cid: string, uri: string): Promise<void> {
 
     const attribution = `Author: ${attr.author.slice(0, 50)}
 Date: ${attr.date.slice(0, 30)}
 Licence: ${attr.licence.slice(0, 40)}
 Source: ${attr.url}`;
-    return await this.agent.post({
+
+    await this.agent.login({identifier: this.config.username, password: this.config.password})
+    this.agent.post({
       text: attribution,
       facets: [
         {
@@ -146,6 +123,49 @@ Source: ${attr.url}`;
       }
     })
   }
+}
+
+
+export class BlueskyImage {
+  private readonly agent: AtpAgent;
+
+  constructor(private readonly config: BlueskyConfig, private readonly attributionClient: BlueskyAttribution) {
+    this.agent = new AtpAgent({
+      service: 'https://bsky.social',
+    })
+  }
+
+
+  async post(image: WikimediaObject): Promise<void> {
+
+    console.log("Logging in...")
+    await this.agent.login({identifier: this.config.username, password: this.config.password})
+    console.log(`Posting image: ${image.attribution.url}...`)
+    const {uri, cid} = await this.postImage(image);
+    console.log("Just posted! URI: ", uri, " CID: ", cid);
+    console.log(`Posting attribution for ${image.attribution.url}...`)
+    await this.attributionClient.post(image.attribution, cid, uri)
+    console.log("Done!")
+  }
+
+  private async postImage(image: WikimediaObject): Promise<{ uri: string, cid: string }> {
+    const blob = await downScale(Buffer.from(await image.image.arrayBuffer()), 976_560)
+
+    const blobRef = await this.agent.uploadBlob(blob)
+      .then(r => r.data.blob)
+
+    return await this.agent.post({
+      text: image.description.slice(0, 300),
+      embed: {
+        $type: 'app.bsky.embed.images',
+        images: [{
+          image: blobRef,
+          alt: image.description
+        }]
+      }
+    });
+  }
+
 }
 
 async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer> {
