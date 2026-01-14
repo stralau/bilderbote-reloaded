@@ -1,8 +1,9 @@
 import {AtpAgent} from '@atproto/api';
 import sharp from "sharp";
-import {Attribution, WikimediaObject} from "../types/types";
-import {rand} from "../util/util";
+import {Attribution, WikimediaObject} from "../types/types.js";
+import {rand} from "../util/util.js";
 import {FeedViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import {PostImageClient, RepostClient} from "./socialMediaClients.js";
 
 interface BlueskyConfig {
   username: string,
@@ -22,7 +23,7 @@ interface BlueskyAttributionConfig {
   imageClientHandle: string,
 }
 
-export class BlueskyImage {
+export class BlueskyImage implements PostImageClient{
   private readonly agent: AtpAgent;
 
   constructor(private readonly config: BlueskyConfig, private readonly attributionClient: BlueskyAttribution) {
@@ -119,7 +120,7 @@ Source: `;
   }
 }
 
-export class BlueskyRepost {
+export class BlueskyRepost implements RepostClient  {
   private readonly agent: AtpAgent;
 
   constructor(private readonly config: BlueskyRepostConfig) {

@@ -1,4 +1,4 @@
-import {Result} from "./Result";
+import {Result} from "./Result.js";
 
 interface Retry<T> {
   fn: () => Promise<Result<T>>,

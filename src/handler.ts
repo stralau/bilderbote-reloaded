@@ -1,8 +1,9 @@
-import {WikimediaService} from "./service/wikimedia";
+import {WikimediaService} from "./service/wikimedia.js";
 import * as process from 'process';
-import {BlueskyAttribution, BlueskyImage} from "./client/bluesky";
+import {BlueskyAttribution, BlueskyImage} from "./client/bluesky.js";
 import * as dotenv from 'dotenv';
-import {WikimediaClient} from "./client/wikimedia";
+import {WikimediaClient} from "./client/wikimedia.js";
+import {MastodonImageClient} from "./client/mastodon.js";
 
 export const handler = async () => {
 
@@ -21,14 +22,19 @@ export const handler = async () => {
     password: process.env.BLUESKY_PASSWORD
   }, attributionClient);
 
+  const mastodon = new MastodonImageClient({accessToken: process.env.MASTODON_ACCESS_TOKEN})
+
   console.log("fetching image")
 
   let image = await wikimedia.fetchImage()
 
-  await bluesky.post(image)
+  await Promise.all([
+    bluesky.post(image),
+    mastodon.post(image)]
+  )
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: image.description }),
+    body: JSON.stringify({message: image.description}),
   };
 };

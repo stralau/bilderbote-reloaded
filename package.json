@@ -17,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/stralau/bilderbote-reloaded/issues"
   },
@@ -43,6 +43,7 @@
     "sharp": "^0.34.5",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
+    "tsl-mastodon-api": "^0.5.1",
     "tsx": "^4.21.0",
     "xml2js": "^0.6.2"
   },

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "es2020",
     "esModuleInterop": true,
     "target": "es2022",
     "skipLibCheck": true,

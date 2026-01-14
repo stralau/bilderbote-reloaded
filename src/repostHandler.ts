@@ -1,5 +1,5 @@
 import * as process from 'process';
-import {BlueskyRepost} from "./client/bluesky";
+import {BlueskyRepost} from "./client/bluesky.js";
 import * as dotenv from 'dotenv';
 
 export const repostHandler = async () => {

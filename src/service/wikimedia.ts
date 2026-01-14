@@ -1,9 +1,9 @@
-import {ContentType, contentTypeFrom, matchesContentType, MediaType} from "@ganbarodigital/ts-lib-mediatype/lib/v1"
-import {retry} from "../util/Retry";
-import {Wikimedia} from "../client/wikimedia";
-import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types";
-import {asArray} from "../util/util";
-import {Result} from "../util/Result";
+import {ContentType, contentTypeFrom, matchesContentType, MediaType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
+import {retry} from "../util/Retry.js";
+import {Wikimedia} from "../client/wikimedia.js";
+import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types.js";
+import {asArray} from "../util/util.js";
+import {Result} from "../util/Result.js";
 import {htmlToText} from "html-to-text";
 
 export class WikimediaService {

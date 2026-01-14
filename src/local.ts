@@ -1,5 +1,5 @@
-import {repostHandler} from "./repostHandler";
-import {handler as imageHandler} from "./handler";
+import {repostHandler} from "./repostHandler.js";
+import {handler as imageHandler} from "./handler.js";
 
 (async () => {
   const handlerName = process.argv[2]

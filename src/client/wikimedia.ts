@@ -1,7 +1,7 @@
 import {parseStringPromise} from "xml2js";
-import {MediaType, mediaTypeFrom} from "@ganbarodigital/ts-lib-mediatype/lib/v1";
-import {Result} from "../util/Result";
-import {HttpStatusError, XmlDesc} from "../types/types";
+import {MediaType, mediaTypeFrom} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js";
+import {Result} from "../util/Result.js";
+import {HttpStatusError, XmlDesc} from "../types/types.js";
 
 export interface Wikimedia {
   fetchXmlDesc(location: string): Promise<XmlDesc>
