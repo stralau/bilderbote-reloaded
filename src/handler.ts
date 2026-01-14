@@ -3,7 +3,7 @@ import * as process from 'process';
 import {BlueskyAttribution, BlueskyImage} from "./client/bluesky.js";
 import * as dotenv from 'dotenv';
 import {WikimediaClient} from "./client/wikimedia.js";
-import {MastodonImageClient} from "./client/mastodon.js";
+import {MastodonAttributionClient, MastodonImageClient} from "./client/mastodon.js";
 
 export const handler = async () => {
 
@@ -22,7 +22,11 @@ export const handler = async () => {
     password: process.env.BLUESKY_PASSWORD
   }, attributionClient);
 
-  const mastodon = new MastodonImageClient({accessToken: process.env.MASTODON_ACCESS_TOKEN})
+  const mastodonAttributionClient = new MastodonAttributionClient({
+    accessToken: process.env.MASTODON_ATTRIBUTION_ACCESS_TOKEN
+  })
+
+  const mastodon = new MastodonImageClient({accessToken: process.env.MASTODON_ACCESS_TOKEN}, mastodonAttributionClient)
 
   console.log("fetching image")
 
