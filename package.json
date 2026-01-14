@@ -17,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
+  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/stralau/bilderbote-reloaded/issues"
   },
@@ -35,7 +35,6 @@
     "@types/jest": "^30.0.0",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^25.0.3",
-    "@types/sharp": "^0.31.1",
     "@types/xml2js": "^0.4.14",
     "dotenv": "^17.2.3",
     "html-to-text": "^9.0.5",
