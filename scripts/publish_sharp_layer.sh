@@ -12,3 +12,8 @@ aws lambda update-function-configuration \
   --function-name post-images-reloaded \
   --layers "$layer_version_arn" \
   --region eu-central-1 | jq '.'
+
+  aws lambda update-function-configuration \
+  --function-name repost-images-reloaded \
+  --layers "$layer_version_arn" \
+  --region eu-central-1 | jq '.'
