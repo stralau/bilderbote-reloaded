@@ -1,7 +1,7 @@
 import * as process from 'process';
 import {BlueskyRepost} from "./client/bluesky.js";
 import * as dotenv from 'dotenv';
-import {MastodonRepostClient} from "./client/mastodon";
+import {MastodonRepostClient} from "./client/mastodon.js";
 
 export const repostHandler = async () => {
 
@@ -16,7 +16,7 @@ export const repostHandler = async () => {
 
   const mastodon = new MastodonRepostClient({
     accessToken: process.env.MASTODON_REPOST_ACCESS_TOKEN,
-    imageAccountID: process.env.MASTODON_IMAGE_ACCOUNT_ID,
+    imageAccountID: process.env.MASTODON_IMAGE_ACCOUNT,
   })
 
   const message = await Promise.all([mastodon.repost(), bluesky.repost()])
