@@ -22,7 +22,7 @@ export class WikimediaService {
       isFatal: e => e instanceof HttpStatusError && e.status == 429
     }).then(r => r.get())
 
-    const description = await this.getDescription(xmlDesc);
+    const description = this.getDescription(xmlDesc);
 
     const fileSection = xmlDesc.response.file;
     const licenses = asArray(xmlDesc.response.licenses.license);
@@ -32,7 +32,7 @@ export class WikimediaService {
         author: fileSection.author ? fileSection.author : fileSection.uploader,
         date: fileSection.date ? fileSection.date : fileSection.upload_date,
         licence: licenses.length > 0 ? licenses[0].name : "",
-        url: fileSection.urls.description.replace(/^http:/, "https:"),
+        url: encodeURI(fileSection.urls.description.replace(/^http:/, "https:")),
       },
       description: description,
       image: await this.wikimedia.fetchImage(fileSection.urls.file)
