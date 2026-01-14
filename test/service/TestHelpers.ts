@@ -1,10 +1,8 @@
 import {WikimediaClient} from "../../src/client/wikimedia";
 import {WikimediaService} from "../../src/service/wikimedia";
-import ProvidesCallback = jest.ProvidesCallback;
 import fs from "node:fs";
 import {parseStringPromise} from "xml2js";
 import {XmlDesc} from "../../src/types/types";
-import {expect} from "@jest/globals";
 import path from "node:path";
 
 export class TestClient extends WikimediaClient {
