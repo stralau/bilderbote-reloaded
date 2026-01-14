@@ -48,11 +48,25 @@ export class Bluesky {
   }
 
   private async postAttribution(attr: Attribution, cid: string, uri: string) {
-    return await this.agent.post({
-      text: `Author: ${attr.author.slice(0, 50)}
+
+    const attribution = `Author: ${attr.author.slice(0, 50)}
 Date: ${attr.date.slice(0, 30)}
 Licence: ${attr.licence.slice(0, 40)}
-Source: ${attr.url}`,
+Source: ${attr.url}`;
+    return await this.agent.post({
+      text: attribution,
+      facets: [
+        {
+          index: {
+            byteStart: attribution.length - attr.url.length,
+            byteEnd: attribution.length
+          },
+          features: [{
+            $type: 'app.bsky.richtext.facet#link',
+            uri: attr.url
+          }]
+        }
+      ],
       reply: {
         root: {
           cid: cid,

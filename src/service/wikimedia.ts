@@ -32,7 +32,7 @@ export class WikimediaService {
         author: fileSection.author ? fileSection.author : fileSection.uploader,
         date: fileSection.date ? fileSection.date : fileSection.upload_date,
         licence: licenses.length > 0 ? licenses[0].name : "",
-        url: fileSection.urls.description,
+        url: fileSection.urls.description.replace(/^http:/, "https:"),
       },
       description: description,
       image: await this.wikimedia.fetchImage(fileSection.urls.file)
