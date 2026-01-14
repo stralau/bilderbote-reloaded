@@ -124,7 +124,6 @@ export class BlueskyRepost implements RepostClient  {
   private readonly agent: AtpAgent;
 
   constructor(private readonly config: BlueskyRepostConfig) {
-    console.log(config)
     this.agent = new AtpAgent({
       service: 'https://bsky.social',
     })
@@ -141,8 +140,6 @@ export class BlueskyRepost implements RepostClient  {
       limit: 6,
       filter: "posts_no_replies"
     })
-
-    console.log(JSON.stringify(timeline, null, 2))
 
     const post: FeedViewPost = randomElement(timeline.data.feed)
 

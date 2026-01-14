@@ -70,7 +70,7 @@ Source: ${attr.url}`,
 
 export class MastodonRepostClient implements RepostClient{
 
-  constructor(private readonly config: { accessToken: string, imageClientID: string }) {
+  constructor(private readonly config: { accessToken: string, imageAccountID: string }) {
   }
 
   async repost(): Promise<string> {
@@ -82,11 +82,18 @@ export class MastodonRepostClient implements RepostClient{
     })
 
     console.log("Reposting...")
-    const posts = await mastodon.getStatuses(this.config.imageClientID, {limit: 6})
+    const accountID = await mastodon
+      .get("accounts/lookup", {acct: this.config.imageAccountID})
+      .then(r => r.json.id as string)
+
+    console.log("accountID", accountID)
+    const posts = await mastodon.getStatuses(accountID, {limit: 6})
       .then(s => s.json)
 
 
     const post = randomElement(posts)
+
+    if (post.reblogged) return `Post ${post.uri} already reposted`
 
     const response = await mastodon.post(`statuses/${post.id}/reblog`)
     return response.json.uri
