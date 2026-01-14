@@ -96,14 +96,19 @@ Date: ${attr.date.slice(0, 30)}
 Licence: ${attr.licence.slice(0, 40)}
 Source: ${attr.url}`;
 
+    console.log(attribution)
+
+    const attributionLength = new TextEncoder().encode(attribution).byteLength
+    const urlLength = new TextEncoder().encode(attr.url).byteLength
+
     await this.agent.login({identifier: this.config.username, password: this.config.password})
-    this.agent.post({
+    await this.agent.post({
       text: attribution,
       facets: [
         {
           index: {
-            byteStart: attribution.length - attr.url.length,
-            byteEnd: attribution.length
+            byteStart: attributionLength - urlLength,
+            byteEnd: attributionLength
           },
           features: [{
             $type: 'app.bsky.richtext.facet#link',
