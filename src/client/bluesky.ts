@@ -1,13 +1,81 @@
 import {AtpAgent} from '@atproto/api';
 import sharp from "sharp";
 import {Attribution, WikimediaObject} from "../types/types";
+import {rand} from "../util/util";
+import {FeedViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import { ensureValidHandle } from '@atproto/identifier'
 
 interface BlueskyConfig {
   username: string,
   password: string
 }
 
-export class Bluesky {
+interface BlueskyRepostConfig {
+  username: string,
+  password: string,
+  imageClientHandle: string,
+  repostClientHandle: string
+}
+
+export class BlueskyRepost {
+  private readonly agent: AtpAgent;
+  private imageClientDID: string
+  private repostClientDID: string
+
+  constructor(private readonly config: BlueskyRepostConfig) {
+    console.log(config)
+    this.agent = new AtpAgent({
+      service: 'https://bsky.social',
+    })
+  }
+
+  async repost(): Promise<string> {
+    await this.resolveDID()
+
+    console.log(`Image client: ${this.imageClientDID}`)
+
+    console.log(`Fetching timeline`)
+
+    const timeline = await this.agent.getAuthorFeed({actor: this.imageClientDID, limit: 6, filter: "posts_with_replies"})
+
+    console.log(JSON.stringify(timeline, null, 2))
+
+    const post: FeedViewPost = timeline.data.feed[rand(0, timeline.data.feed.length - 1)]
+
+    if (await this.repostedByMe(post.post.uri)) {
+      return `Post ${post.post.uri} already reposted by ${this.config.username}`
+    }
+    console.log(`Reposting ${post.post.uri}`)
+    const {uri, cid} = await this.agent.repost(post.post.uri, post.post.cid)
+    console.log(`Reposted ${uri}`)
+    return uri
+
+  }
+
+  private async repostedByMe(uri: string): Promise<boolean> {
+    const repostedBy = await this.agent.getRepostedBy({uri}).then(r => r.data.repostedBy)
+    console.log(
+      `Post ${uri} reposted by ${repostedBy.map(r => r.did).join(", ")}`
+    );
+    return repostedBy.some(r => r.did == this.repostClientDID)
+  }
+
+  private async resolveDID(): Promise<void> {
+    if (!this.imageClientDID) {
+      console.log("Logging in...")
+      await this.agent.login({identifier: this.config.username, password: this.config.password})
+      this.imageClientDID = await this.agent.resolveHandle({handle: this.config.imageClientHandle})
+        .then(r => r.data.did)
+    }
+    if (!this.repostClientDID) {
+      this.repostClientDID = await this.agent.resolveHandle({handle: this.config.repostClientHandle})
+        .then(r => r.data.did)
+    }
+  }
+
+}
+
+export class BlueskyImage {
   private readonly agent: AtpAgent;
 
   constructor(private readonly config: BlueskyConfig) {
@@ -80,7 +148,6 @@ Source: ${attr.url}`;
     })
   }
 }
-
 
 async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer> {
 

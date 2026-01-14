@@ -15,3 +15,7 @@ class Pair<T1, T2> {
 export function asArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
+
+export function rand(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}

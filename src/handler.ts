@@ -1,6 +1,6 @@
 import {WikimediaService} from "./service/wikimedia";
 import * as process from 'process';
-import {Bluesky} from "./client/bluesky";
+import {BlueskyImage} from "./client/bluesky";
 import * as dotenv from 'dotenv';
 import {WikimediaClient} from "./client/wikimedia";
 import {decryptEnvVar} from "./util/DecryptEnv";
@@ -15,7 +15,7 @@ export const handler = async () => {
 
   const wikimediaClient = new WikimediaClient({});
   const wikimedia = new WikimediaService(wikimediaClient)
-  const bluesky = new Bluesky({username: process.env.BLUESKY_USERNAME, password: process.env.BLUESKY_PASSWORD});
+  const bluesky = new BlueskyImage({username: process.env.BLUESKY_USERNAME, password: process.env.BLUESKY_PASSWORD});
 
   console.log("fetching image")
 
