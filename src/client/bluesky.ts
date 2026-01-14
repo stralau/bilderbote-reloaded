@@ -3,7 +3,6 @@ import sharp from "sharp";
 import {Attribution, WikimediaObject} from "../types/types";
 import {rand} from "../util/util";
 import {FeedViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
-import { ensureValidHandle } from '@atproto/identifier'
 
 interface BlueskyConfig {
   username: string,

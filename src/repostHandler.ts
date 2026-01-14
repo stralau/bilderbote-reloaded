@@ -1,15 +1,10 @@
 import * as process from 'process';
 import {BlueskyRepost} from "./client/bluesky";
 import * as dotenv from 'dotenv';
-import {decryptEnvVar} from "./util/DecryptEnv";
 
 export const repostHandler = async () => {
 
   dotenv.config();
-
-  if (!!process.env.LAMBDA_TASK_ROOT) {
-    await decryptEnvVar("BLUESKY_PASSWORD")
-  }
 
   const bluesky = new BlueskyRepost({
     username: process.env.BLUESKY_REPOST_USERNAME,

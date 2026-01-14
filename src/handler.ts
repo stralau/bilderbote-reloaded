@@ -3,15 +3,10 @@ import * as process from 'process';
 import {BlueskyImage} from "./client/bluesky";
 import * as dotenv from 'dotenv';
 import {WikimediaClient} from "./client/wikimedia";
-import {decryptEnvVar} from "./util/DecryptEnv";
 
 export const handler = async () => {
 
   dotenv.config();
-
-  if (!!process.env.LAMBDA_TASK_ROOT){
-    await decryptEnvVar("BLUESKY_PASSWORD")
-  }
 
   const wikimediaClient = new WikimediaClient({});
   const wikimedia = new WikimediaService(wikimediaClient)
