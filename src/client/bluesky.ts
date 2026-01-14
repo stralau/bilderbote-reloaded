@@ -22,115 +22,6 @@ interface BlueskyAttributionConfig {
   imageClientHandle: string,
 }
 
-export class BlueskyRepost {
-  private readonly agent: AtpAgent;
-  private imageClientDID: string
-  private repostClientDID: string
-
-  constructor(private readonly config: BlueskyRepostConfig) {
-    console.log(config)
-    this.agent = new AtpAgent({
-      service: 'https://bsky.social',
-    })
-  }
-
-  async repost(): Promise<string> {
-    await this.resolveDID()
-
-    console.log(`Image client: ${this.imageClientDID}`)
-
-    console.log(`Fetching timeline`)
-
-    const timeline = await this.agent.getAuthorFeed({actor: this.imageClientDID, limit: 6, filter: "posts_no_replies"})
-
-    console.log(JSON.stringify(timeline, null, 2))
-
-    const post: FeedViewPost = timeline.data.feed[rand(0, timeline.data.feed.length - 1)]
-
-    if (await this.repostedByMe(post.post.uri)) {
-      return `Post ${post.post.uri} already reposted by ${this.config.username}`
-    }
-    console.log(`Reposting ${post.post.uri}`)
-    const {uri, cid} = await this.agent.repost(post.post.uri, post.post.cid)
-    console.log(`Reposted ${uri}`)
-    return uri
-
-  }
-
-  private async repostedByMe(uri: string): Promise<boolean> {
-    const repostedBy = await this.agent.getRepostedBy({uri}).then(r => r.data.repostedBy)
-    console.log(
-      `Post ${uri} reposted by ${repostedBy.map(r => r.did).join(", ")}`
-    );
-    return repostedBy.some(r => r.did == this.repostClientDID)
-  }
-
-  private async resolveDID(): Promise<void> {
-    if (!this.imageClientDID) {
-      console.log("Logging in...")
-      await this.agent.login({identifier: this.config.username, password: this.config.password})
-      this.imageClientDID = await this.agent.resolveHandle({handle: this.config.imageClientHandle})
-        .then(r => r.data.did)
-    }
-    if (!this.repostClientDID) {
-      this.repostClientDID = await this.agent.resolveHandle({handle: this.config.repostClientHandle})
-        .then(r => r.data.did)
-    }
-  }
-
-}
-
-export class BlueskyAttribution {
-  private readonly agent: AtpAgent;
-
-  constructor(private readonly config: BlueskyAttributionConfig) {
-    this.agent = new AtpAgent({
-      service: 'https://bsky.social',
-    })
-  }
-
-  async post(attr: Attribution, cid: string, uri: string): Promise<void> {
-
-    const attribution = `Author: ${attr.author.slice(0, 50)}
-Date: ${attr.date.slice(0, 30)}
-Licence: ${attr.licence.slice(0, 40)}
-Source: ${attr.url}`;
-
-    console.log(attribution)
-
-    const attributionLength = new TextEncoder().encode(attribution).byteLength
-    const urlLength = new TextEncoder().encode(attr.url).byteLength
-
-    await this.agent.login({identifier: this.config.username, password: this.config.password})
-    await this.agent.post({
-      text: attribution,
-      facets: [
-        {
-          index: {
-            byteStart: attributionLength - urlLength,
-            byteEnd: attributionLength
-          },
-          features: [{
-            $type: 'app.bsky.richtext.facet#link',
-            uri: attr.url
-          }]
-        }
-      ],
-      reply: {
-        root: {
-          cid: cid,
-          uri: uri
-        },
-        parent: {
-          cid: cid,
-          uri: uri
-        }
-      }
-    })
-  }
-}
-
-
 export class BlueskyImage {
   private readonly agent: AtpAgent;
 
@@ -170,6 +61,112 @@ export class BlueskyImage {
       }
     });
   }
+
+}
+
+export class BlueskyAttribution {
+  private readonly agent: AtpAgent;
+
+  constructor(private readonly config: BlueskyAttributionConfig) {
+    this.agent = new AtpAgent({
+      service: 'https://bsky.social',
+    })
+  }
+
+  async post(attr: Attribution, cid: string, uri: string): Promise<void> {
+
+    const attributionHead = `Author: ${attr.author.slice(0, 50)}
+Date: ${attr.date.slice(0, 30)}
+Licence: ${attr.licence.slice(0, 40)}
+Source: `;
+
+    const attributionUrl = attr.url.slice(0, 300 - attributionHead.length);
+
+    const attribution = `${attributionHead}${attributionUrl}`;
+
+    console.log(attribution)
+
+    const attributionLength = new TextEncoder().encode(attribution).byteLength
+    const urlLength = new TextEncoder().encode(attributionUrl).byteLength
+
+
+    await this.agent.login({identifier: this.config.username, password: this.config.password})
+    await this.agent.post({
+      text: attribution,
+      facets: [
+        {
+          index: {
+            byteStart: attributionLength - urlLength,
+            byteEnd: attributionLength
+          },
+          features: [{
+            $type: 'app.bsky.richtext.facet#link',
+            uri: attr.url
+          }]
+        }
+      ],
+      reply: {
+        root: {
+          cid: cid,
+          uri: uri
+        },
+        parent: {
+          cid: cid,
+          uri: uri
+        }
+      }
+    })
+  }
+}
+
+export class BlueskyRepost {
+  private readonly agent: AtpAgent;
+
+  constructor(private readonly config: BlueskyRepostConfig) {
+    console.log(config)
+    this.agent = new AtpAgent({
+      service: 'https://bsky.social',
+    })
+  }
+
+  async repost(): Promise<string> {
+
+    console.log(`Fetching timeline`)
+
+    await this.agent.login({identifier: this.config.username, password: this.config.password})
+
+    const timeline = await this.agent.getAuthorFeed({
+      actor: await this.resolveDID(this.config.imageClientHandle),
+      limit: 6,
+      filter: "posts_no_replies"
+    })
+
+    console.log(JSON.stringify(timeline, null, 2))
+
+    const post: FeedViewPost = timeline.data.feed[rand(0, timeline.data.feed.length - 1)]
+
+    if (await this.repostedByMe(post.post.uri)) {
+      return `Post ${post.post.uri} already reposted by ${this.config.username}`
+    }
+    console.log(`Reposting ${post.post.uri}`)
+    const {uri, cid} = await this.agent.repost(post.post.uri, post.post.cid)
+    console.log(`Reposted ${uri}`)
+    return uri
+
+  }
+
+  private async repostedByMe(uri: string): Promise<boolean> {
+    const repostedBy = await this.agent.getRepostedBy({uri}).then(r => r.data.repostedBy)
+    console.log(
+      `Post ${uri} reposted by ${repostedBy.map(r => r.did).join(", ")}`
+    );
+    const did = await this.resolveDID(this.config.repostClientHandle);
+    return repostedBy.some(r => r.did == did)
+  }
+
+
+  resolveDID = async (handle: string) =>
+    await this.agent.resolveHandle({handle: handle}).then(r => r.data.did)
 
 }
 
