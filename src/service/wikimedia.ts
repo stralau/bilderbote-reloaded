@@ -30,7 +30,7 @@ export class WikimediaService {
     return {
       attribution: {
         author: fileSection.author ? fileSection.author : fileSection.uploader,
-        date: fileSection.date ? fileSection.date : fileSection.upload_date,
+        date: this.getDate(xmlDesc),
         licence: licenses.length > 0 ? licenses[0].name : "",
         url: encodeURI(fileSection.urls.description.replace(/^http:/, "https:")),
       },
@@ -75,6 +75,12 @@ export class WikimediaService {
 
     return this.sanitiseDescription(description);
 
+  }
+
+  getDate(xmlDesc: XmlDesc): string {
+    const fileSection = xmlDesc.response.file;
+    const date = new Date(fileSection.date ? fileSection.date : fileSection.upload_date,)
+    return date.toLocaleDateString('en-GB', {dateStyle: 'long'})
   }
 
   sanitiseDescription = (description: string): string =>

@@ -49,6 +49,15 @@ test('Sanitises description' , async () => {
   })
 })
 
+test('Renders data correctly', async () => {
+  const service = new Test()
+    .wikimediaService
+
+  return withXmlDesc("html-description-with-newlines") (xmlDesc => {
+    expect(service.getDate(xmlDesc)).toEqual("12 March 2020")
+  })
+})
+
 test('Removes html' , async () => {
   const service = new Test()
     .wikimediaService
