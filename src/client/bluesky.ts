@@ -35,7 +35,7 @@ export class BlueskyRepost {
 
     console.log(`Fetching timeline`)
 
-    const timeline = await this.agent.getAuthorFeed({actor: this.imageClientDID, limit: 6, filter: "posts_with_replies"})
+    const timeline = await this.agent.getAuthorFeed({actor: this.imageClientDID, limit: 6, filter: "posts_no_replies"})
 
     console.log(JSON.stringify(timeline, null, 2))
 
