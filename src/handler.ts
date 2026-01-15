@@ -28,7 +28,10 @@ export const handler = async () => {
     accessToken: process.env.MASTODON_ATTRIBUTION_ACCESS_TOKEN
   })
 
-  const mastodon = new MastodonImageClient({accessToken: process.env.MASTODON_ACCESS_TOKEN}, mastodonAttributionClient)
+  const mastodon = new MastodonImageClient({
+    accessToken: process.env.MASTODON_ACCESS_TOKEN,
+    userAgent: process.env.USER_AGENT
+  }, mastodonAttributionClient)
 
   console.log("fetching image")
 

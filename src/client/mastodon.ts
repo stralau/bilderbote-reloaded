@@ -5,7 +5,7 @@ import {randomElement} from "../util/util.js";
 
 export class MastodonImageClient implements PostImageClient {
 
-  constructor(private readonly config: { accessToken: string }, private readonly attributionClient: MastodonAttributionClient) {
+  constructor(private readonly config: { accessToken: string, userAgent: string }, private readonly attributionClient: MastodonAttributionClient) {
   }
 
   async post(image: WikimediaObject): Promise<void> {
@@ -13,8 +13,9 @@ export class MastodonImageClient implements PostImageClient {
     console.log("Logging in...")
 
     const mastodon = new Mastodon.API({
+      api_url: "https://mastodon.social/api/v1/",
       access_token: this.config.accessToken,
-      api_url: "https://mastodon.social/api/v1/"
+      user_agent: this.config.userAgent
     })
 
     console.log("Posting image...")
