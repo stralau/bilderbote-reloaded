@@ -23,7 +23,7 @@ export class WikimediaClient implements Wikimedia {
   public fetchXmlDesc = async (location: string): Promise<XmlDesc> => {
     const fileName = this.fileName(location)
 
-    const xmlDesc = await fetch(`https://magnus-toolserver.toolforge.org/commonsapi.php?image=${fileName}`)
+    const xmlDesc = await get(`https://magnus-toolserver.toolforge.org/commonsapi.php?image=${fileName}`)
       .then(res => res.ok ? res : Promise.reject(res))
       .then(res => res.text())
       .then(xmlString => parseStringPromise(xmlString, {explicitArray: false}))
@@ -34,13 +34,13 @@ export class WikimediaClient implements Wikimedia {
   public fetchImageInfo = async (location: string): Promise<ImageInfo> => {
     const filename = this.fileName(location)
 
-    return await fetch(`https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=extmetadata&formatversion=2&titles=File:${filename}`)
+    return await get(`https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=extmetadata&formatversion=2&titles=File:${filename}`)
       .then(res => res.ok ? res : Promise.reject(res))
       .then(res => res.json())
   }
 
   public fetchMediaType = async (location: string): Promise<Result<MediaType>> => {
-    const response = await fetch(location, {method: 'HEAD'})
+    const response = await get(location, {method: 'HEAD'})
 
     if (!response.ok) return Result.err(
       new HttpStatusError(response.status, `Failed to fetch image from: ${location}`)
@@ -50,7 +50,7 @@ export class WikimediaClient implements Wikimedia {
   };
 
   public fetchImage = async (location: string): Promise<Blob> => {
-    const response = await fetch(location)
+    const response = await get(location)
 
     if (!response.ok)
       throw new HttpStatusError(response.status, `Failed to fetch image from: ${location}`)
@@ -59,7 +59,7 @@ export class WikimediaClient implements Wikimedia {
   };
 
   public async fetchRandomFileLocation(): Promise<string> {
-    const res = await fetch('https://commons.wikimedia.org/wiki/Special:Random', {
+    const res = await get('https://commons.wikimedia.org/wiki/Special:Random', {
       method: 'GET',
       redirect: 'manual'
     })
@@ -74,10 +74,21 @@ export class WikimediaClient implements Wikimedia {
     return res.headers.get('Location') || ''
   };
 
-
   fileName = (location: string): String => location
     .split("/")
     .pop()
     .replace(/^File:/, "");
 
+}
+
+function get(
+  input: string | URL | Request,
+  init?: RequestInit,
+): Promise<Response> {
+
+  if (!init) init = {};
+  if (!init.headers) init.headers = {} as Record<string, string>;
+
+  init.headers["User-Agent"] = "Bilderbote/2.0 (https://github.com/stralau/bilderbote-reloaded)";
+  return fetch(input, init);
 }
