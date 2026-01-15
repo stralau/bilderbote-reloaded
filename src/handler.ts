@@ -30,6 +30,7 @@ export const handler = async () => {
   })
 
   const mastodon = new MastodonImageClient({
+    instance_url: process.env.MASTODON_INSTANCE_URL,
     accessToken: process.env.MASTODON_ACCESS_TOKEN,
     userAgent: process.env.USER_AGENT
   }, mastodonAttributionClient)
