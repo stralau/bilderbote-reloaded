@@ -5,6 +5,7 @@ import {parseStringPromise} from "xml2js";
 import {XmlDesc} from "../../src/types/types";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
+import {HttpClient} from "../../src/net/httpClient";
 
 export class TestClient extends WikimediaClient {
   private randomFileLocation: string
@@ -24,7 +25,7 @@ export class Test {
   private readonly _wikimediaClient: TestClient
 
   constructor() {
-    this._wikimediaClient = new TestClient({})
+    this._wikimediaClient = new TestClient(new HttpClient({userAgent: "Test User Agent (https://example.invalid) "}),)
     this._wikimediaService = new WikimediaService(this._wikimediaClient)
   }
 
