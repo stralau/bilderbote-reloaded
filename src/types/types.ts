@@ -46,6 +46,24 @@ export interface XmlDesc {
   }
 }
 
+export interface ImageInfo {
+  query: {
+    pages: [
+      {
+        imageinfo: [
+          {
+            extmetadata: {
+              Artist: {
+                value: string
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
 
 export class HttpStatusError extends Error {
   constructor(public readonly status: number, message?: string) {

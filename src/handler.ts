@@ -30,7 +30,9 @@ export const handler = async () => {
 
   console.log("fetching image")
 
-  let image = await wikimedia.fetchImage()
+  let image = await wikimedia.fetchWikimediaObject()
+
+  console.log("image fetched", JSON.stringify(image, null, 2))
 
   await Promise.all([
     bluesky.post(image),

@@ -1,10 +1,16 @@
-import {ContentType, contentTypeFrom, matchesContentType, MediaType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
+import {
+  ContentType,
+  contentTypeFrom,
+  matchesContentType,
+  MediaType
+} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
 import {retry} from "../util/Retry.js";
 import {Wikimedia} from "../client/wikimedia.js";
 import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types.js";
 import {asArray} from "../util/util.js";
 import {Result} from "../util/Result.js";
 import {htmlToText} from "html-to-text";
+import {stripHtml} from "@dndxdnd/strip-html";
 
 export class WikimediaService {
   private static knownMediaTypes: ContentType[] =
@@ -15,33 +21,45 @@ export class WikimediaService {
   public constructor(private readonly wikimedia: Wikimedia) {
   }
 
-  public fetchImage = async (): Promise<WikimediaObject> => {
-    const xmlDesc = await retry({
-      fn: this.fetchImageDescription,
+  public fetchWikimediaObject = async (): Promise<WikimediaObject> => {
+    return await retry({
       attempts: 10,
-      isFatal: e => e instanceof HttpStatusError && e.status == 429
+      isFatal: e => e instanceof HttpStatusError && e.status == 429,
+      fn: async () => {
+        const location = await this.wikimedia.fetchRandomFileLocation();
+        const r = await this.fetchImageDescription(location);
+        return r.map(async xmlDesc => {
+          console.log("location", location)
+          const description = this.getDescription(xmlDesc);
+
+          const fileSection = xmlDesc.response.file;
+          const licenses = asArray(xmlDesc.response.licenses.license);
+
+          const imageInfoPromise = this.wikimedia.fetchImageInfo(location);
+          const imagePromise = this.wikimedia.fetchImage(fileSection.urls.file);
+
+          const imageInfo = await imageInfoPromise;
+          const author = await stripHtml(imageInfo.query.pages[0]?.imageinfo[0]?.extmetadata.Artist.value);
+          const image = await imagePromise;
+
+          return {
+            attribution: {
+              author: author && author != "" ? author : (fileSection.author ? fileSection.author : fileSection.uploader),
+              date: this.getDate(xmlDesc),
+              licence: licenses.length > 0 ? licenses[0].name : "",
+              url: encodeURI(fileSection.urls.description.replace(/^http:/, "https:")),
+            },
+            description: description,
+            image: image
+          }
+        });
+      },
     }).then(r => r.get())
 
-    const description = this.getDescription(xmlDesc);
-
-    const fileSection = xmlDesc.response.file;
-    const licenses = asArray(xmlDesc.response.licenses.license);
-
-    return {
-      attribution: {
-        author: fileSection.author ? fileSection.author : fileSection.uploader,
-        date: this.getDate(xmlDesc),
-        licence: licenses.length > 0 ? licenses[0].name : "",
-        url: encodeURI(fileSection.urls.description.replace(/^http:/, "https:")),
-      },
-      description: description,
-      image: await this.wikimedia.fetchImage(fileSection.urls.file)
-    }
   }
 
-  fetchImageDescription = async (): Promise<Result<XmlDesc>> => {
+  fetchImageDescription = async (location: string): Promise<Result<XmlDesc>> => {
 
-    const location = await this.wikimedia.fetchRandomFileLocation()
     const xmlDesc = await this.wikimedia.fetchXmlDesc(location)
 
     const imageLocation = xmlDesc.response.file.urls.file
