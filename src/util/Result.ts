@@ -1,40 +1,56 @@
+import assert from "node:assert";
+
 export class Result<T, E = Error > {
-  constructor(public readonly success: boolean, public readonly value?: T, public readonly error?: E) {}
+  constructor(public readonly r: { success: true; value: T } | { success: false; error: E }) {}
 
   static ok<T, E = Error>(value: T): Result<T, E> {
-    return new Result(true, value)
+    return new Result({success: true, value: value})
   }
 
   static err<T, E = Error>(error: E): Result<T, E> {
-    return new Result(false, undefined, error)
+    return new Result({success: false, error: error})
   }
 
-  static succeed(): Result<void, never> {
-    return new Result(true)
+  success(): boolean {
+    return this.r.success === true
   }
 
-  map<T,U>(fn: (T) => U): Result<U, E> {
-    return this.success === true ? Result.ok(fn(this.value as any as U)) : Result.err<U, E>(this.error)
+  map<U>(fn: (t: T) => U): Result<U, E> {
+    return this.r.success === true ? Result.ok(fn(this.r.value)) : Result.err<U, E>(this.r.error)
   }
 
-  flatMap<T,U>(fn: (T) => Result<U, E>): Result<U, E> {
-    return this.success === true ? fn(this.value as any as U) : Result.err<U, E>(this.error)
+  flatMap<U>(fn: (t: T) => Result<U, E>): Result<U, E> {
+    return this.r.success === true ? fn(this.r.value) : Result.err<U, E>(this.r.error)
   }
 
-  mapError<E2>(fn: (E) => E2): Result<T, E2> {
-    return this.success === true ? Result.ok(this.value as any as T) : Result.err<T, E2>(fn(this.error))
+  filter(p: (t: T) => true | E): Result<T, E> {
+    if (!this.success()) {
+      return this
+    }
+
+    const res = p(this.get())
+
+    if (res === true) {
+      return this
+    }
+
+    return Result.err(res)
   }
 
-  onError(fn: (E) => void): Result<T, E> {
-    if (this.success === false) fn(this.error)
+  mapError<E2>(fn: (e: E) => E2): Result<T, E2> {
+    return this.r.success === true ? Result.ok(this.r.value as any as T) : Result.err<T, E2>(fn(this.r.error))
+  }
+
+  onError(fn: (e: E) => void): Result<T, E> {
+    if (this.r.success === false) fn(this.r.error)
     return this
   }
 
   get(): T {
-    if (this.success === false) {
-      console.error(this.error)
-      throw this.error
+    if (this.r.success === false) {
+      console.error(this.r.error)
+      throw this.r.error
     }
-    return this.value
+    return this.r.value
   }
 }

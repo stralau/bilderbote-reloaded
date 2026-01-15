@@ -1,7 +1,7 @@
-import {AtpAgent} from '@atproto/api';
+import {AppBskyRichtextFacet, AtpAgent} from '@atproto/api';
 import sharp from "sharp";
 import {Attribution, WikimediaObject} from "../types/types.js";
-import {randomElement} from "../util/util.js";
+import {asArray, randomElement} from "../util/util.js";
 import {AppBskyFeedDefs} from "@atproto/api";
 import {PostImageClient, RepostClient} from "./socialMediaClients.js";
 
@@ -24,7 +24,7 @@ interface BlueskyAttributionConfig {
   imageClientHandle: string,
 }
 
-export class BlueskyImage implements PostImageClient{
+export class BlueskyImage implements PostImageClient {
   private readonly agent: AtpAgent;
 
   constructor(private readonly config: BlueskyConfig, private readonly attributionClient: BlueskyAttribution) {
@@ -78,36 +78,21 @@ export class BlueskyAttribution {
 
   async post(attr: Attribution, cid: string, uri: string): Promise<void> {
 
-    const attributionHead = `Author: ${attr.author.slice(0, 50)}
-Date: ${attr.date.slice(0, 30)}
-Licence: ${attr.licence.slice(0, 40)}
-Source: `;
+    const attributionEntries = new AttributionEntries(
+      {key: "Author", value: attr.author.slice(0, 50)},
+      {key: "Date", value: attr.date.slice(0, 30)},
+      {key: "Licence", value: attr.licence.slice(0, 40), link: attr.licenceUrl},
+      {key: "Source", value: attr.url, link: attr.url}
+    )
 
-    const attributionUrl = attr.url.slice(0, 300 - attributionHead.length);
-
-    const attribution = `${attributionHead}${attributionUrl}`;
-
-    console.log(attribution)
-
-    const attributionLength = new TextEncoder().encode(attribution).byteLength
-    const urlLength = new TextEncoder().encode(attributionUrl).byteLength
-
+    console.log("attribution entries:", JSON.stringify(attributionEntries.entries, null, 2))
+    console.log("attribution", attributionEntries.attributionText())
+    console.log("facets", attributionEntries.facets())
 
     await this.agent.login({identifier: this.config.username, password: this.config.password})
     await this.agent.post({
-      text: attribution,
-      facets: [
-        {
-          index: {
-            byteStart: attributionLength - urlLength,
-            byteEnd: attributionLength
-          },
-          features: [{
-            $type: 'app.bsky.richtext.facet#link',
-            uri: attr.url
-          }]
-        }
-      ],
+      text: attributionEntries.attributionText(),
+      facets: attributionEntries.facets(),
       reply: {
         root: {
           cid: cid,
@@ -122,7 +107,58 @@ Source: `;
   }
 }
 
-export class BlueskyRepost implements RepostClient  {
+class AttributionEntry {
+
+  constructor(public readonly offset: number, public readonly key: string, public readonly value: string, public readonly link?: string) {
+  }
+
+  attributionText = () => {
+    return `${this.key}: ${this.value}`
+  }
+
+  facets = () => {
+    return this.link ? [{
+      index: {
+        byteStart: this.offset + this.length(this.attributionText()) - this.length(this.value),
+        byteEnd: this.offset + this.length(this.attributionText())
+      },
+      features: [{
+        $type: 'app.bsky.richtext.facet#link',
+        uri: this.link
+      }]
+    }] : []
+  }
+
+  length = (s: string): number => new TextEncoder().encode(s).byteLength
+}
+
+class AttributionEntries {
+  readonly entries: AttributionEntry[]
+
+  constructor(...entries: { key: string, value: string, link?: string }[]) {
+    const calculateNextOffset = (e: AttributionEntry) => e.offset + new TextEncoder().encode(e.attributionText() + '\n').byteLength
+    this.entries = entries.reduce(
+      (acc, {
+        key,
+        value,
+        link
+      }) => [...acc, new AttributionEntry(acc.length > 0 ? calculateNextOffset(acc.at(-1)) : 0, key, value, link)],
+      [] as AttributionEntry[]
+    )
+  }
+
+  attributionText(): string {
+    return this.entries.map((e) => e.attributionText())
+      .join("\n")
+      .slice(0, 300)
+  }
+
+  facets = () =>
+    this.entries.flatMap(e => e.facets());
+
+}
+
+export class BlueskyRepost implements RepostClient {
   private readonly agent: AtpAgent;
 
   constructor(private readonly config: BlueskyRepostConfig) {

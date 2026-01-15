@@ -1,0 +1,108 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "normalized": [
+      {
+        "fromencoded": false,
+        "from": "File:2015-08-26_13-47-19_demolition-ndda.jpg",
+        "to": "File:2015-08-26 13-47-19 demolition-ndda.jpg"
+      }
+    ],
+    "pages": [
+      {
+        "pageid": 42724181,
+        "ns": 6,
+        "title": "File:2015-08-26 13-47-19 demolition-ndda.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "extmetadata": {
+              "DateTime": {
+                "value": "2015-08-28 16:58:11",
+                "source": "mediawiki-metadata",
+                "hidden": ""
+              },
+              "ObjectName": {
+                "value": "2015-08-26 13-47-19 demolition-ndda",
+                "source": "mediawiki-metadata"
+              },
+              "CommonsMetadataExtension": {
+                "value": 1.2,
+                "source": "extension",
+                "hidden": ""
+              },
+              "Categories": {
+                "value": "Personality rights warning|Taken with Nikon D7100 and AF-S DX VR Zoom-Nikkor 18-200mm f/3.5-5.6G IF-ED|Uploaded with Commonist|Photos by ComputerHotline|Files with coordinates missing SDC location of creation|Caterpillar 365BL|Démolition de l'église Notre Dame des Anges de Belfort",
+                "source": "commons-categories",
+                "hidden": ""
+              },
+              "Assessments": {
+                "value": "",
+                "source": "commons-categories",
+                "hidden": ""
+              },
+              "GPSLatitude": {
+                "value": "47.633280",
+                "source": "commons-desc-page"
+              },
+              "GPSLongitude": {
+                "value": "6.856743",
+                "source": "commons-desc-page"
+              },
+              "GPSMapDatum": {
+                "value": "WGS-84",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "DateTimeOriginal": {
+                "value": "2015-08-26 13:47:19",
+                "source": "commons-desc-page"
+              },
+              "Credit": {
+                "value": "<span class=\"int-own-work\" lang=\"en\">Own work</span>",
+                "source": "commons-desc-page"
+              },
+              "Artist": {
+                "value": "<bdi><a href=\"//commons.wikimedia.org/wiki/User:ComputerHotline\" title=\"User:ComputerHotline\">Thomas Bresson</a></bdi>",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY 3.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "UsageTerms": {
+                "value": "Creative Commons Attribution 3.0",
+                "source": "commons-desc-page"
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by/3.0",
+                "source": "commons-desc-page"
+              },
+              "Copyrighted": {
+                "value": "True",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "Restrictions": {
+                "value": "personality",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "License": {
+                "value": "cc-by-3.0",
+                "source": "commons-templates",
+                "hidden": ""
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

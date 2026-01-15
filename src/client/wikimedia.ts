@@ -1,13 +1,11 @@
 import {parseStringPromise} from "xml2js";
 import {MediaType, mediaTypeFrom} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js";
 import {Result} from "../util/Result.js";
-import {HttpStatusError, ImageInfo, XmlDesc} from "../types/types.js";
+import {HttpStatusError, ImageInfoResponse, XmlDesc} from "../types/types.js";
 import {HttpClient} from "../net/httpClient.js";
 
 export interface Wikimedia {
-  fetchXmlDesc(location: string): Promise<XmlDesc>
-
-  fetchImageInfo(location: string): Promise<ImageInfo>
+  fetchImageInfo(location: string): Promise<ImageInfoResponse>
 
   fetchMediaType(location: string): Promise<Result<MediaType>>
 
@@ -22,21 +20,10 @@ export class WikimediaClient implements Wikimedia {
   }
 
 
-  public fetchXmlDesc = async (location: string): Promise<XmlDesc> => {
-    const fileName = this.fileName(location)
-
-    const xmlDesc = await this.httpClient.fetch(`https://magnus-toolserver.toolforge.org/commonsapi.php?image=${fileName}`)
-      .then(res => res.ok ? res : Promise.reject(res))
-      .then(res => res.text())
-      .then(xmlString => parseStringPromise(xmlString, {explicitArray: false}))
-
-    return xmlDesc as XmlDesc
-  }
-
-  public fetchImageInfo = async (location: string): Promise<ImageInfo> => {
+  public fetchImageInfo = async (location: string): Promise<ImageInfoResponse> => {
     const filename = this.fileName(location)
 
-    return await this.httpClient.fetch(`https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=extmetadata&formatversion=2&titles=File:${filename}`)
+    return await this.httpClient.fetch(`https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url|extmetadata|size&formatversion=2&titles=File:${filename}`)
       .then(res => res.ok ? res : Promise.reject(res))
       .then(res => res.json())
   }

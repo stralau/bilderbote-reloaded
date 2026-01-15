@@ -1,14 +1,17 @@
 import {WikimediaClient} from "../../src/client/wikimedia";
 import {WikimediaService} from "../../src/service/wikimedia";
 import fs from "node:fs";
-import {parseStringPromise} from "xml2js";
-import {XmlDesc} from "../../src/types/types";
+import {ImageInfoResponse, XmlDesc} from "../../src/types/types";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {HttpClient} from "../../src/net/httpClient";
 
 export class TestClient extends WikimediaClient {
   private randomFileLocation: string
+
+  constructor(httpClient: HttpClient) {
+    super(httpClient)
+  }
 
   public override async fetchRandomFileLocation(): Promise<string> {
     return this.randomFileLocation ? this.randomFileLocation : await super.fetchRandomFileLocation()
@@ -40,8 +43,12 @@ export class Test {
 
 }
 
-export function withXmlDesc(fileName: string): (testFunction: (xmlDesc: XmlDesc) => void) => Promise<void> {
-  const fileContents = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "__testData__", `${fileName}.xml`), "utf8")
+function getFileContents(fileName: string) {
+  return fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "__testData__", `${fileName}`), "utf8");
+}
 
-  return testFunction => parseStringPromise(fileContents, {explicitArray: false}).then(testFunction)
+export async function withImageInfo(fileName: string): Promise<(testFunction: (imageInfo: ImageInfoResponse) => void) => void> {
+  const imageInfo: ImageInfoResponse = JSON.parse(getFileContents(`${fileName}.json`))
+
+  return testFunction => testFunction(imageInfo)
 }

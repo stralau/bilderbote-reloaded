@@ -1,13 +1,7 @@
-import {
-  ContentType,
-  contentTypeFrom,
-  matchesContentType,
-  MediaType
-} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
+import {ContentType, contentTypeFrom, matchesContentType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
 import {retry} from "../util/Retry.js";
 import {Wikimedia} from "../client/wikimedia.js";
-import {HttpStatusError, WikimediaObject, XmlDesc} from "../types/types.js";
-import {asArray} from "../util/util.js";
+import {ExtMetadata, HttpStatusError, ImageInfo, ImageInfoResponse, WikimediaObject} from "../types/types.js";
 import {Result} from "../util/Result.js";
 import {htmlToText} from "html-to-text";
 import {stripHtml} from "@dndxdnd/strip-html";
@@ -22,87 +16,87 @@ export class WikimediaService {
   }
 
   public fetchWikimediaObject = async (): Promise<WikimediaObject> => {
-    return await retry({
+
+    const imageInfoResult = await retry({
       attempts: 10,
+      fn: this.fetchInfo,
       isFatal: e => e instanceof HttpStatusError && e.status == 429,
-      fn: async () => {
-        const location = await this.wikimedia.fetchRandomFileLocation();
-        const r = await this.fetchImageDescription(location);
-        return r.map(async xmlDesc => {
-          console.log("location", location)
-          const description = this.getDescription(xmlDesc);
+    });
 
-          const fileSection = xmlDesc.response.file;
-          const licenses = asArray(xmlDesc.response.licenses.license);
+    const imageInfo = imageInfoResult.get()
+    const extMetadata = imageInfo.extmetadata;
 
-          const imageInfoPromise = this.wikimedia.fetchImageInfo(location);
-          const imagePromise = this.wikimedia.fetchImage(fileSection.urls.file);
-
-          const imageInfo = await imageInfoPromise;
-          const author = await stripHtml(imageInfo.query.pages[0]?.imageinfo[0]?.extmetadata.Artist.value);
-          const image = await imagePromise;
-
-          return {
-            attribution: {
-              author: author && author != "" ? author : (fileSection.author ? fileSection.author : fileSection.uploader),
-              date: this.getDate(xmlDesc),
-              licence: licenses.length > 0 ? licenses[0].name : "",
-              url: encodeURI(fileSection.urls.description.replace(/^http:/, "https:")),
-            },
-            description: description,
-            image: image
-          }
-        });
-      },
-    }).then(r => r.get())
+    const imagePromise = this.wikimedia.fetchImage(imageInfo.url);
+    return {
+      description: await this.getDescription(extMetadata),
+      image: await imagePromise,
+      attribution: {
+        author: await this.sanitiseText(extMetadata.Artist?.value),
+        date: this.getDate(extMetadata),
+        licence: extMetadata.LicenseShortName.value,
+        licenceUrl: extMetadata.LicenseUrl?.value,
+        url: imageInfo.descriptionurl,
+      }
+    } as WikimediaObject
 
   }
 
-  fetchImageDescription = async (location: string): Promise<Result<XmlDesc>> => {
+  fetchInfo = async () => {
+    const location = await this.wikimedia.fetchRandomFileLocation();
+    console.log("location", location)
 
-    const xmlDesc = await this.wikimedia.fetchXmlDesc(location)
-
-    const imageLocation = xmlDesc.response.file.urls.file
-
-    const mediaType = await this.wikimedia.fetchMediaType(imageLocation)
-
-    return mediaType.flatMap(mediaType => this.validate(xmlDesc, mediaType))
-      .onError(err => console.log(err.message))
+    const imageInfoResponse = await this.wikimedia.fetchImageInfo(location);
+    console.log("imageInfoResponse", JSON.stringify(imageInfoResponse, null, 2))
+    return this.validate(imageInfoResponse)
   }
 
-  validate = (xmlDesc: XmlDesc, mediaType: MediaType): Result<XmlDesc> => {
+  validate = async (response: ImageInfoResponse): Promise<Result<ImageInfo>> => {
 
-    if (!matchesContentType(mediaType, WikimediaService.knownMediaTypes)) {
-      return Result.err(Error("Image is not a known media type: " + mediaType))
+    const pages = response.query.pages;
+    if (pages.length != 1) {
+      return Result.err(Error("Non-unique image info – zero or multiple pages"))
     }
 
-    if (xmlDesc.response.file.size > WikimediaService.maxSizeInBytes) {
-      return Result.err(Error("Image is too large: " + xmlDesc.response.file.size + " bytes"))
+    const infos = pages[0].imageinfo
+    if (infos.length != 1) {
+      return Result.err(Error("Non-unique image info – zero or multiple info objects"))
     }
 
-    return Result.ok(xmlDesc)
+    const imageInfo = infos[0]
+
+    const size = imageInfo.size;
+    if (size > WikimediaService.maxSizeInBytes) {
+      return Result.err(Error("Image is too large: " + size + " bytes"))
+    }
+
+    const mediaTypeResult = await this.wikimedia.fetchMediaType(imageInfo.url)
+
+    return mediaTypeResult.filter(mt => {
+        return matchesContentType(mt, WikimediaService.knownMediaTypes) || Error("Image is not a known media type: " + mt)
+      }
+    ).map(mt => imageInfo)
   }
 
-  getDescription = (xmlDesc: XmlDesc): string => {
-    let descriptions = asArray(xmlDesc.response.description.language);
+  getDescription = async (extMetadata: ExtMetadata): Promise<string> => {
 
-    const description = descriptions && descriptions.every(d => d && d.$ && d._) ?
-      (descriptions.find(l => l.$.code == "default") || descriptions[0])._
-      : xmlDesc.response.file.name;
-
-
-    return this.sanitiseDescription(description);
+    const description = extMetadata.ImageDescription?.value ?? extMetadata.ObjectName?.value;
+    return await this.sanitiseText(description);
 
   }
 
-  getDate(xmlDesc: XmlDesc): string {
-    const fileSection = xmlDesc.response.file;
-    const date = new Date(fileSection.date ? fileSection.date : fileSection.upload_date,)
-    return date.toLocaleDateString('en-GB', {dateStyle: 'long'})
+  getDate(md: ExtMetadata): string {
+    const dateValue = md.DateTimeOriginal?.value ?? md.DateTime?.value;
+    const date = new Date(dateValue)
+    const dateString = date.toLocaleDateString('en-GB', {dateStyle: 'long'});
+    if (dateString == 'Invalid Date') return htmlToText(dateValue).replace(/\s+/g, ' ').trim()
+    return dateString
   }
 
-  sanitiseDescription = (description: string): string =>
-    htmlToText(description).replace(/\s+/g, ' ').replace(/\n+/g, ' ').trim()
+  sanitiseText = async (text: string): Promise<string> =>
+    (await stripHtml(text))
+      .replace(/\s+/g, ' ')
+      .replace(/\n+/g, ' ')
+      .trim();
 
 }
 

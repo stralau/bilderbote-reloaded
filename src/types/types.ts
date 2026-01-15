@@ -2,6 +2,7 @@ export interface Attribution {
   author: string,
   date: string,
   licence: string,
+  licenceUrl: string,
   url: string,
 }
 
@@ -46,19 +47,48 @@ export interface XmlDesc {
   }
 }
 
+export interface ExtMetadata {
+  Artist: {
+    value: string
+  },
+  ImageDescription: {
+    value: string
+  },
+  ObjectName: {
+    value: string
+  },
+  DateTimeOriginal: {
+    value: string
+  },
+  DateTime: {
+    value: string
+  },
+  LicenseShortName: {
+    value: string
+  },
+  LicenseUrl: {
+    value: string
+  },
+  UsageTerms: {
+    value: string
+  }
+}
+
 export interface ImageInfo {
+  size: number,
+  width: number,
+  height: number,
+  url: string,
+  descriptionurl: string,
+  descriptionshorturl: string,
+  extmetadata: ExtMetadata
+}
+
+export interface ImageInfoResponse {
   query: {
     pages: [
       {
-        imageinfo: [
-          {
-            extmetadata: {
-              Artist: {
-                value: string
-              }
-            }
-          }
-        ]
+        imageinfo: [ImageInfo]
       }
     ]
   }

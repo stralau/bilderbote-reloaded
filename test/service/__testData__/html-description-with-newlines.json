@@ -1,0 +1,105 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "normalized": [
+      {
+        "fromencoded": false,
+        "from": "File:Tinnen_figuur_in_de_vorm_van_Franse_trompettist_(kurassier)_te_paard,_objectnr_90005.JPG",
+        "to": "File:Tinnen figuur in de vorm van Franse trompettist (kurassier) te paard, objectnr 90005.JPG"
+      }
+    ],
+    "pages": [
+      {
+        "pageid": 87952694,
+        "ns": 6,
+        "title": "File:Tinnen figuur in de vorm van Franse trompettist (kurassier) te paard, objectnr 90005.JPG",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 2983687,
+            "width": 3508,
+            "height": 3508,
+            "url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Tinnen_figuur_in_de_vorm_van_Franse_trompettist_%28kurassier%29_te_paard%2C_objectnr_90005.JPG",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:Tinnen_figuur_in_de_vorm_van_Franse_trompettist_(kurassier)_te_paard,_objectnr_90005.JPG",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=87952694",
+            "extmetadata": {
+              "DateTime": {
+                "value": "2020-03-12 05:28:31",
+                "source": "mediawiki-metadata",
+                "hidden": ""
+              },
+              "ObjectName": {
+                "value": "Tinnen figuur in de vorm van Franse trompettist (kurassier) te paard, objectnr 90005",
+                "source": "mediawiki-metadata"
+              },
+              "CommonsMetadataExtension": {
+                "value": 1.2,
+                "source": "extension",
+                "hidden": ""
+              },
+              "Categories": {
+                "value": "Tin soldiers in Museum Rotterdam|Tin horse figurines",
+                "source": "commons-categories",
+                "hidden": ""
+              },
+              "Assessments": {
+                "value": "",
+                "source": "commons-categories",
+                "hidden": ""
+              },
+              "ImageDescription": {
+                "value": "<br><br><big><b>Objectgegevens</b></big> <br><b>Titel: </b> \tTinnen figuur in de vorm van Franse trompettist (kurassier) te paard <br><b>Beschrijving:</b>  \tTinnen beeldje met een groen geschilderd voetstuk. Het beeldje stelt een Franse kurassier, meer in het bijzonder een trompettist te paard rond 1812-1815 voor. Het paard gaat stapvoets. De berijder heeft de teugels in zijn linkerhand en de goudkleurige trompet in de rechterhand. Het mondstuk staat aan de mond. Het beeldje is als volgt geverfd: blauwe wapenrok met rode epauletten, zilverkleurige kuras, witte broek, zwarte laarzen, goudkleurige helm met zwarte paardenstaart. Gewapend met sabel. Het paard is wit met een lange staart en heeft een zwart tuig en een blauw dekkleed met witte biezen. <br><b>Trefwoorden:</b>  \tkarakterspeelgoed, speelgoed, ontspanningsmiddel\t <br><b>Vervaardiger:</b>  \tAllgeyer <br><b>Plaats vervaardiging:</b>  \tDuitsland, Fürth <br><b>Datering:</b>  \t1860 - 1880 <br><b>Technieken:</b>  \tgegoten, beschilderd\t <br><b>Materiaal:</b>  \tmetaal, tin, lood, verf\t <br><b>Afmetingen:</b>  (cm) \thg 4,1 / br 3,2 / dp 0,9 <br><b>Associatie:</b>  \ttinnen soldaatje, afgietsel, figuur, figuurvoorstelling, , cavalerie, kurassier, leger, oorlog, Napoleon I, 1812-1815, militaria, spelen, communicatie, bevel, muziek\t <br><b>Vorm &amp; decoratie:</b>  \tsoldaat, kurassier, trompettist, wapenrok, epaulet, kuras, helm, paardenstaart, pluim, sabel, paard, dier, trompet, musicus\t <br><b>Inventarisnr:</b> \tMuseum Rotterdam 90005",
+                "source": "commons-desc-page"
+              },
+              "DateTimeOriginal": {
+                "value": "between 1860 and 1880<div style=\"display: none;\">date QS:P,+1850-00-00T00:00:00Z/7,P1319,+1860-00-00T00:00:00Z/9,P1326,+1880-00-00T00:00:00Z/9</div>",
+                "source": "commons-desc-page"
+              },
+              "Credit": {
+                "value": "<a rel=\"nofollow\" class=\"external free\" href=\"https://museumrotterdam.nl/collectie/item/90005\">https://museumrotterdam.nl/collectie/item/90005</a>",
+                "source": "commons-desc-page"
+              },
+              "Artist": {
+                "value": "Allgeyer",
+                "source": "commons-desc-page"
+              },
+              "LicenseShortName": {
+                "value": "CC BY-SA 3.0",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "UsageTerms": {
+                "value": "Creative Commons Attribution-Share Alike 3.0",
+                "source": "commons-desc-page"
+              },
+              "AttributionRequired": {
+                "value": "true",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseUrl": {
+                "value": "https://creativecommons.org/licenses/by-sa/3.0",
+                "source": "commons-desc-page"
+              },
+              "Copyrighted": {
+                "value": "True",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "Restrictions": {
+                "value": "",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "License": {
+                "value": "cc-by-sa-3.0",
+                "source": "commons-templates",
+                "hidden": ""
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
