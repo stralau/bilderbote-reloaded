@@ -8,6 +8,7 @@ import {PostImageClient, RepostClient} from "./socialMediaClients.js";
 interface BlueskyConfig {
   username: string,
   password: string
+  userAgent: string
 }
 
 interface BlueskyRepostConfig {
@@ -29,6 +30,7 @@ export class BlueskyImage implements PostImageClient{
   constructor(private readonly config: BlueskyConfig, private readonly attributionClient: BlueskyAttribution) {
     this.agent = new AtpAgent({
       service: 'https://bsky.social',
+      headers: [['User-Agent', config.userAgent]]
     })
   }
 

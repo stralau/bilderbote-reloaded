@@ -21,7 +21,8 @@ export const handler = async () => {
 
   const bluesky = new BlueskyImage({
     username: process.env.BLUESKY_USERNAME,
-    password: process.env.BLUESKY_PASSWORD
+    password: process.env.BLUESKY_PASSWORD,
+    userAgent: process.env.USER_AGENT,
   }, attributionClient);
 
   const mastodonAttributionClient = new MastodonAttributionClient({
