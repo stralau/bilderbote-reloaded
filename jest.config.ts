@@ -7,6 +7,16 @@ const config: Config = {
   testMatch: ['**/?(*.)+(spec|test).ts?(x)'],
   moduleFileExtensions: ['ts', 'js'],
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
+  extensionsToTreatAsEsm: ['.ts'],
+  globals: {
+    'ts-jest': {
+      useESM: true
+    }
+  },
+  moduleNameMapper: {
+    '^\\./(.*)\\.js$': './$1',
+    '^\\.\\./(.*)\\.js$': '../$1'
+  },
 };
 
 export default config;

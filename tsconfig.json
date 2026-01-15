@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "module": "es2020",
+    "module": "NodeNext",
     "esModuleInterop": true,
     "target": "es2022",
     "skipLibCheck": true,
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "sourceMap": true,
     "outDir": "dist",
     "types" :["jest"],

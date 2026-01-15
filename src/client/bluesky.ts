@@ -2,7 +2,7 @@ import {AtpAgent} from '@atproto/api';
 import sharp from "sharp";
 import {Attribution, WikimediaObject} from "../types/types.js";
 import {randomElement} from "../util/util.js";
-import {FeedViewPost} from "@atproto/api/dist/client/types/app/bsky/feed/defs";
+import {AppBskyFeedDefs} from "@atproto/api";
 import {PostImageClient, RepostClient} from "./socialMediaClients.js";
 
 interface BlueskyConfig {
@@ -141,7 +141,7 @@ export class BlueskyRepost implements RepostClient  {
       filter: "posts_no_replies"
     })
 
-    const post: FeedViewPost = randomElement(timeline.data.feed)
+    const post: AppBskyFeedDefs.FeedViewPost = randomElement(timeline.data.feed)
 
     if (await this.repostedByMe(post.post.uri)) {
       return `Post ${post.post.uri} already reposted by ${this.config.username}`
