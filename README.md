@@ -6,7 +6,7 @@ A bot posting random images from Wikimedia Commons to social media.
 ### Mastodon
 * <a rel="me" href="https://mastodon.social/@bilderbote">Bilderbote</a>
 * <a rel="me" href="https://mastodon.social/@bilderbote_economy">Bilderbote Economy</a>
-* <a rel="me" href="https://mastodon.social/@bilderbote_attribution">Bilderbote Attribution</a>
+* <a rel="me" href="https://mastodon.social/@bilderbote_attribution">Bilderbote Attributions</a>
 
 ### Bluesky:
 * <a rel="me" href="https://bsky.app/profile/bilderbote.bsky.social">Bilderbote</a>
