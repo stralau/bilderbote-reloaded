@@ -22,7 +22,7 @@ export class MastodonImageClient implements PostImageClient {
       const media = await mastodon.postMediaAttachment(
         {
           file: new File([image.image], "image.jpeg", {type: "image/jpeg"}),
-          description: image.description,
+          description: image.description.slice(0, 1500),
         },
         true
       )
@@ -30,7 +30,7 @@ export class MastodonImageClient implements PostImageClient {
       console.log(media.json)
 
       const status = await mastodon.postStatus({
-        status: image.description,
+        status: image.description.slice(0, 500),
         media_ids: [media.json.id],
       })
 
