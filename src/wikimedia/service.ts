@@ -92,11 +92,11 @@ export class WikimediaService {
     return dateString
   }
 
-  sanitiseText = async (text: string): Promise<string> =>
-    (await stripHtml(text))
+  sanitiseText = async (text: string): Promise<string> => {
+    return text != "" ? (await stripHtml(text))
       .replace(/\s+/g, ' ')
       .replace(/\n+/g, ' ')
-      .trim();
-
+      .trim() : "";
+  }
 }
 

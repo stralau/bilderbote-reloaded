@@ -91,3 +91,10 @@ test('Removes newline' , async () => {
 
   expect(await service.sanitiseText("Hello,\nworld!")).toBe("Hello, world!")
 })
+
+test('Strips HTML from empty string' , async () => {
+  const service = new Test()
+    .wikimediaService
+
+  expect(await service.sanitiseText("")).toBe("")
+})
