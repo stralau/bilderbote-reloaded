@@ -1,6 +1,6 @@
 import {ContentType, contentTypeFrom, matchesContentType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
 import {retry} from "../util/Retry.js";
-import {Wikimedia} from "../client/wikimedia.js";
+import {Wikimedia} from "../wikimedia/client.js";
 import {ExtMetadata, HttpStatusError, ImageInfo, ImageInfoResponse, WikimediaObject} from "../types/types.js";
 import {Result} from "../util/Result.js";
 import {htmlToText} from "html-to-text";

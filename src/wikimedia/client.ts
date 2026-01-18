@@ -1,7 +1,6 @@
-import {parseStringPromise} from "xml2js";
 import {MediaType, mediaTypeFrom} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js";
 import {Result} from "../util/Result.js";
-import {HttpStatusError, ImageInfoResponse, XmlDesc} from "../types/types.js";
+import {HttpStatusError, ImageInfoResponse} from "../types/types.js";
 import {HttpClient} from "../net/httpClient.js";
 
 export interface Wikimedia {

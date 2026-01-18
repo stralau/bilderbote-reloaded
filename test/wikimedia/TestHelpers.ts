@@ -1,7 +1,7 @@
-import {WikimediaClient} from "../../src/client/wikimedia";
-import {WikimediaService} from "../../src/service/wikimedia";
+import {WikimediaClient} from "../../src/wikimedia/client";
+import {WikimediaService} from "../../src/wikimedia/service";
 import fs from "node:fs";
-import {ImageInfoResponse, XmlDesc} from "../../src/types/types";
+import {ImageInfoResponse} from "../../src/types/types";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {HttpClient} from "../../src/net/httpClient";

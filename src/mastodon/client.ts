@@ -1,4 +1,4 @@
-import {PostImageClient, RepostClient} from "./socialMediaClients.js";
+import {PostImageClient, RepostClient} from "../types/socialMediaClients.js";
 import {Attribution, WikimediaObject} from "../types/types.js";
 import * as Mastodon from 'tsl-mastodon-api';
 import {randomElement} from "../util/util.js";

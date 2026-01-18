@@ -1,7 +1,7 @@
 import * as process from 'process';
-import {BlueskyRepost} from "./client/bluesky.js";
+import {BlueskyRepost} from "./bluesky/repostClient.js";
 import * as dotenv from 'dotenv';
-import {MastodonRepostClient} from "./client/mastodon.js";
+import {MastodonRepostClient} from "./mastodon/client.js";
 
 export const repostHandler = async () => {
 

@@ -11,42 +11,6 @@ export interface WikimediaObject {
   image: Blob
   attribution: Attribution
 }
-
-export interface Elem {
-  _: string
-  $: {
-    code: string
-  }
-}
-
-
-export interface XmlDesc {
-  response: {
-    file: {
-      name: string
-      title: string
-      author: string;
-      uploader: string;
-      date: string;
-      upload_date: string;
-      size: number
-      urls: {
-        file: string
-        description: string
-        date: string
-      }
-    }
-    licenses: {
-      license: [{
-        name: string
-      }]
-    }
-    description: {
-      language: [Elem] | Elem,
-    }
-  }
-}
-
 export interface ExtMetadata {
   Artist: {
     value: string
@@ -93,7 +57,6 @@ export interface ImageInfoResponse {
     ]
   }
 }
-
 
 export class HttpStatusError extends Error {
   constructor(public readonly status: number, message?: string) {

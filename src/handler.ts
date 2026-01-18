@@ -1,10 +1,11 @@
-import {WikimediaService} from "./service/wikimedia.js";
+import {WikimediaService} from "./wikimedia/service.js";
 import * as process from 'process';
-import {BlueskyAttribution, BlueskyImage} from "./client/bluesky.js";
 import * as dotenv from 'dotenv';
-import {WikimediaClient} from "./client/wikimedia.js";
-import {MastodonAttributionClient, MastodonImageClient} from "./client/mastodon.js";
+import {WikimediaClient} from "./wikimedia/client.js";
+import {MastodonAttributionClient, MastodonImageClient} from "./mastodon/client.js";
 import {HttpClient} from "./net/httpClient.js";
+import {BlueskyAttribution} from "./bluesky/attributionClient.js";
+import {BlueskyImage} from "./bluesky/imageClient.js";
 
 export const handler = async () => {
 
