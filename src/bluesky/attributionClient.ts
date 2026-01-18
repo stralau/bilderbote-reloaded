@@ -20,15 +20,15 @@ export class BlueskyAttribution {
   async post(attr: Attribution, cid: string, uri: string): Promise<void> {
 
     const attributionEntries = new AttributionEntries(
-      {key: "Author", value: attr.author.slice(0, 50)},
-      {key: "Date", value: attr.date.slice(0, 30)},
-      {key: "Licence", value: attr.licence.slice(0, 40), link: attr.licenceUrl},
+      {key: "Author", value: attr.author, maxLength: 90},
+      {key: "Date", value: attr.date, maxLength: 90},
+      {key: "Licence", value: attr.licence, maxLength: 90, link: attr.licenceUrl},
       {key: "Source", value: attr.url, link: attr.url}
     )
 
     console.log("attribution entries:", JSON.stringify(attributionEntries.entries, null, 2))
     console.log("attribution", attributionEntries.attributionText())
-    console.log("facets", attributionEntries.facets())
+    console.log("facets", JSON.stringify(attributionEntries.facets()), null, 2)
 
     await this.agent.login({identifier: this.config.username, password: this.config.password})
     await this.agent.post({
