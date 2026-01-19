@@ -83,10 +83,10 @@ function parseWikimediaDateFormat(date: string): {datePart?: string, fromWikimed
   const day = parseInt(dayPart.slice(1) ?? "0");
 
   const dateString = [
-    ...[day].filter(() => day != 0).toString(),
-    ...[monthName(monthNumber)].filter(() => monthNumber != 0),
     year,
-  ].slice(0, precision - 8).join(' ')
+    ...[monthName(monthNumber)].filter(() => monthNumber != 0),
+    ...[day].filter(() => day != 0).toString(),
+  ].slice(0, precision - 8).reverse().join(' ')
 
   console.log("textPart", textPart)
   console.log("dateString", dateString)

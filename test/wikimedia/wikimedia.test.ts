@@ -109,15 +109,23 @@ test('Show year only if month is missing, even with months precision', async () 
 })
 
 test('Show month if exists with months precision', async () => {
-  expect (parseDate("date QS:P571,1797-01-00T00:00:00Z/10")).toBe("January 1797")
+  expect (parseDate("date QS:P571,1797-03-00T00:00:00Z/10")).toBe("March 1797")
 })
 
 test('Show month only if month is missing, even with days precision', async () => {
-  expect (parseDate("date QS:P571,1797-01-00T00:00:00Z/11")).toBe("January 1797")
+  expect (parseDate("date QS:P571,1797-03-00T00:00:00Z/11")).toBe("March 1797")
 })
 
 test('Show day if exists with day precision', async () => {
-  expect (parseDate("date QS:P571,1797-01-01T00:00:00Z/11")).toBe("1 January 1797")
+  expect (parseDate("date QS:P571,1797-05-07T00:00:00Z/11")).toBe("7 May 1797")
+})
+
+test('Don’t show day with month precision', async () => {
+  expect (parseDate("date QS:P571,1797-05-07T00:00:00Z/10")).toBe("May 1797")
+})
+
+test('Don’t show month with year precision', async () => {
+  expect (parseDate("date QS:P571,1797-05-07T00:00:00Z/9")).toBe("1797")
 })
 
 test('BCE date', async () => {
