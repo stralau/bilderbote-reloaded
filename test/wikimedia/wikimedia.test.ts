@@ -134,7 +134,11 @@ test('BCE date', async () => {
 })
 
 test('Parse ISO date', async () => {
-  expect (await await parseDate("2025-12-03")).toBe("3 December 2025")
+  expect (await parseDate("2025-12-03")).toBe("3 December 2025")
+})
+
+test('Parse ISO date with time', async () => {
+  expect (await parseDate("2025-12-03T12:04:15Z")).toBe("3 December 2025")
 })
 
 test("Leave a year without month and day unchanged", async () => {
