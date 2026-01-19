@@ -55,25 +55,32 @@ export class BlueskyImage implements PostImageClient {
 
 async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer> {
 
-  let quality = 90
   let image = original
-  let counter = 0
-
   let md = await sharp(image).metadata()
 
-  console.log(`Original image size: ${image.byteLength} bytes, ${md.width}x${md.height} pixels.`)
-  while (quality > 10 && (image.byteLength > maxSizeBytes || md.width  > 1000 || md.height > 1000)) {
-    console.log('quality', quality, 'image size', image.byteLength, 'width', md.width, 'height', md.height, 'max size', maxSizeBytes, 'counter', counter, '... downscaling image')
+  let counter = 0
+  if (md.width > 1000 && md.height > 1000) {
+    console.log(`Image is too large: ${md.width}x${md.height}, ${image.byteLength} bytes. Resizing dimensions.`)
     counter++
-    quality -= 5
     image = await sharp(image)
       .resize(1000, 1000, {fit: 'contain', withoutEnlargement: true})
-      .jpeg({quality, mozjpeg: true})
+      .jpeg({quality: 90, mozjpeg: true})
       .toBuffer()
-    md = await sharp(image).metadata()
+
+    console.log(`Resized to ${md.width}x${md.height}, ${image.byteLength} bytes.`)
   }
 
-  if (counter > 0) console.log(`Downscaled image ${counter} times`)
+  async function shrink(image: Buffer, quality: number, counter: number): Promise<{ image: Buffer, counter: number }> {
+    if (image.byteLength <= maxSizeBytes) return {image: image, counter: counter}
 
-  return image
+    console.log(`Image is too large: ${image.byteLength} bytes`)
+
+    return shrink(await sharp(image).jpeg({quality: quality, mozjpeg: true}).toBuffer(), quality - 5, counter + 1)
+  }
+
+  const result = await shrink(image, 90, counter)
+
+  if (result.counter > 0) console.log(`Downscaled image ${result.counter} times`)
+
+  return result.image
 }
