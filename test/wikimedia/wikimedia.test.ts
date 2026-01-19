@@ -2,7 +2,7 @@ import {expect} from "@jest/globals";
 import {Test, withImageInfo} from "./TestHelpers";
 import {ImageInfoResponse} from "../../src/types/types";
 import {sanitiseText} from "../../src/wikimedia/service";
-import {getDate} from "../../src/wikimedia/attribution";
+import {getDate, parseDate} from "../../src/wikimedia/attribution";
 
 test('Fetches image', async () => {
 
@@ -54,7 +54,7 @@ test('Renders date correctly', async () => {
   })
 })
 
-test('Keeps unparsable date unchanged', async () => {
+test('Strips unparsable date', async () => {
   new Test()
     .wikimediaService;
   return (await withImageInfo("html-description-with-newlines")) ((imageInfo: ImageInfoResponse) => {
@@ -82,4 +82,52 @@ test('Removes newline' , async () => {
 
 test('Strips HTML from empty string' , async () => {
   expect(await sanitiseText("")).toBe("")
+})
+
+test('Parses date correctly', async () => {
+  expect (parseDate("in the year date QS:P571,+1797-00-00T00:00:00Z/9")).toBe("in the year 1797")
+})
+
+test('Don’t show the parsed year if it is the same as the text year', async () => {
+  expect (parseDate("1797 date QS:P571,+1797-00-00T00:00:00Z/9")).toBe("1797")
+})
+
+test('Don’t show the parsed date if it is the same as the text date', async () => {
+  expect (parseDate("1797-01-01 date QS:P571,+1797-01-01T00:00:00Z/11")).toBe("1 January 1797")
+})
+
+test('Parse date without text', async () => {
+  expect (parseDate("date QS:P571,+1797-00-00T00:00:00Z/9")).toBe("1797")
+})
+
+test('Parse date without sign', async () => {
+  expect (parseDate("date QS:P571,1797-00-00T00:00:00Z/9")).toBe("1797")
+})
+
+test('Show year only if month is missing, even with months precision', async () => {
+  expect (parseDate("date QS:P571,1797-00-00T00:00:00Z/10")).toBe("1797")
+})
+
+test('Show month if exists with months precision', async () => {
+  expect (parseDate("date QS:P571,1797-01-00T00:00:00Z/10")).toBe("January 1797")
+})
+
+test('Show month only if month is missing, even with days precision', async () => {
+  expect (parseDate("date QS:P571,1797-01-00T00:00:00Z/11")).toBe("January 1797")
+})
+
+test('Show day if exists with day precision', async () => {
+  expect (parseDate("date QS:P571,1797-01-01T00:00:00Z/11")).toBe("1 January 1797")
+})
+
+test('BCE date', async () => {
+  expect (parseDate("date QS:P571,-1797-00-00T00:00:00Z/9")).toBe("1797 BCE")
+})
+
+test('Parse ISO date', async () => {
+  expect (parseDate("2025-12-03")).toBe("3 December 2025")
+})
+
+test('Parse ISO date', async () => {
+  expect (parseDate("2025-12-03")).toBe("3 December 2025")
 })
