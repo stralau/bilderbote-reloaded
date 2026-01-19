@@ -58,14 +58,19 @@ async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer
   let quality = 90
   let image = original
   let counter = 0
-  console.log(`Original image size: ${image.byteLength} bytes`)
-  while (image.byteLength > maxSizeBytes && quality > 10) {
+
+  let md = await sharp(image).metadata()
+
+  console.log(`Original image size: ${image.byteLength} bytes, ${md.width}x${md.height} pixels.`)
+  while (quality > 10 && (image.byteLength > maxSizeBytes || md.width  > 1000 || md.height > 1000)) {
+    console.log('quality', quality, 'image size', image.byteLength, 'width', md.width, 'height', md.height, 'max size', maxSizeBytes, 'counter', counter, '... downscaling image')
     counter++
     quality -= 5
     image = await sharp(image)
-      .resize(1000, 1000, {fit: 'inside', withoutEnlargement: true})
+      .resize(1000, 1000, {fit: 'contain', withoutEnlargement: true})
       .jpeg({quality, mozjpeg: true})
       .toBuffer()
+    md = await sharp(image).metadata()
   }
 
   if (counter > 0) console.log(`Downscaled image ${counter} times`)
