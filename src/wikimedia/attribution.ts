@@ -6,11 +6,13 @@ export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
 
   const extMetadata = imageInfo.extmetadata;
 
+  const licenceUrl = extMetadata.LicenseUrl?.value;
+
   return {
     author: await sanitiseText(extMetadata.Artist?.value),
     date: await getDate(extMetadata),
     licence: extMetadata.LicenseShortName.value,
-    licenceUrl: encodeURI(extMetadata.LicenseUrl?.value),
+    licenceUrl: licenceUrl?  encodeURI(licenceUrl) : undefined,
     url: encodeURI(imageInfo.descriptionurl),
   }
 }
