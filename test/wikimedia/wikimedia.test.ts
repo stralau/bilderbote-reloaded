@@ -1,6 +1,8 @@
 import {expect} from "@jest/globals";
 import {Test, withImageInfo} from "./TestHelpers";
 import {ImageInfoResponse} from "../../src/types/types";
+import {sanitiseText} from "../../src/wikimedia/service";
+import {getDate} from "../../src/wikimedia/attribution";
 
 test('Fetches image', async () => {
 
@@ -44,57 +46,40 @@ test('Sanitises description' , async () => {
 })
 
 test('Renders date correctly', async () => {
-  const service = new Test()
-    .wikimediaService
-
+  new Test()
+    .wikimediaService;
   return (await withImageInfo("no-description")) ((imageInfo: ImageInfoResponse) => {
     const extMetadata = imageInfo.query.pages[0].imageinfo[0].extmetadata
-    expect(service.getDate(extMetadata)).toEqual("26 August 2015")
+    expect(getDate(extMetadata)).toEqual("26 August 2015")
   })
 })
 
 test('Keeps unparsable date unchanged', async () => {
-  const service = new Test()
-    .wikimediaService
-
+  new Test()
+    .wikimediaService;
   return (await withImageInfo("html-description-with-newlines")) ((imageInfo: ImageInfoResponse) => {
     const extMetadata = imageInfo.query.pages[0].imageinfo[0].extmetadata
-    expect(service.getDate(extMetadata)).toEqual("between 1860 and 1880 date QS:P,+1850-00-00T00:00:00Z/7,P1319,+1860-00-00T00:00:00Z/9,P1326,+1880-00-00T00:00:00Z/9")
+    expect(getDate(extMetadata)).toEqual("between 1860 and 1880 date QS:P,+1850-00-00T00:00:00Z/7,P1319,+1860-00-00T00:00:00Z/9,P1326,+1880-00-00T00:00:00Z/9")
   })
 })
 
 
 test('Removes html' , async () => {
-  const service = new Test()
-    .wikimediaService
-
-  expect(await service.sanitiseText("<span>Hello</span>, world!")).toBe("Hello, world!")
+  expect(await sanitiseText("<span>Hello</span>, world!")).toBe("Hello, world!")
 })
 
 test('Removes double spaces' , async () => {
-  const service = new Test()
-    .wikimediaService
-
-  expect(await service.sanitiseText("Hello,  world!")).toBe("Hello, world!")
+  expect(await sanitiseText("Hello,  world!")).toBe("Hello, world!")
 })
 
 test('Removes <br/>' , async () => {
-  const service = new Test()
-    .wikimediaService
-
-  expect(await service.sanitiseText("Hello,<br/>world!")).toBe("Hello,world!")
+  expect(await sanitiseText("Hello,<br/>world!")).toBe("Hello,world!")
 })
 
 test('Removes newline' , async () => {
-  const service = new Test()
-    .wikimediaService
-
-  expect(await service.sanitiseText("Hello,\nworld!")).toBe("Hello, world!")
+  expect(await sanitiseText("Hello,\nworld!")).toBe("Hello, world!")
 })
 
 test('Strips HTML from empty string' , async () => {
-  const service = new Test()
-    .wikimediaService
-
-  expect(await service.sanitiseText("")).toBe("")
+  expect(await sanitiseText("")).toBe("")
 })

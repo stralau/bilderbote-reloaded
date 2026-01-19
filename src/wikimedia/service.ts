@@ -5,6 +5,7 @@ import {ExtMetadata, HttpStatusError, ImageInfo, ImageInfoResponse, WikimediaObj
 import {Result} from "../util/Result.js";
 import {htmlToText} from "html-to-text";
 import {stripHtml} from "@dndxdnd/strip-html";
+import {attribution} from "./attribution.js";
 
 export class WikimediaService {
   private static knownMediaTypes: ContentType[] =
@@ -24,19 +25,12 @@ export class WikimediaService {
     });
 
     const imageInfo = imageInfoResult.get()
-    const extMetadata = imageInfo.extmetadata;
 
     const imagePromise = this.wikimedia.fetchImage(imageInfo.url);
     return {
-      description: await this.getDescription(extMetadata),
+      description: await this.getDescription(imageInfo.extmetadata),
       image: await imagePromise,
-      attribution: {
-        author: await this.sanitiseText(extMetadata.Artist?.value),
-        date: this.getDate(extMetadata),
-        licence: extMetadata.LicenseShortName.value,
-        licenceUrl: extMetadata.LicenseUrl?.value,
-        url: imageInfo.descriptionurl,
-      }
+      attribution: await attribution(imageInfo)
     } as WikimediaObject
 
   }
@@ -80,23 +74,15 @@ export class WikimediaService {
   getDescription = async (extMetadata: ExtMetadata): Promise<string> => {
 
     const description = extMetadata.ImageDescription?.value ?? extMetadata.ObjectName?.value;
-    return await this.sanitiseText(description);
+    return await sanitiseText(description);
 
   }
+}
 
-  getDate(md: ExtMetadata): string {
-    const dateValue = md.DateTimeOriginal?.value ?? md.DateTime?.value;
-    const date = new Date(dateValue)
-    const dateString = date.toLocaleDateString('en-GB', {dateStyle: 'long'});
-    if (dateString == 'Invalid Date') return htmlToText(dateValue).replace(/\s+/g, ' ').trim()
-    return dateString
-  }
-
-  sanitiseText = async (text: string): Promise<string> => {
-    return text != "" ? (await stripHtml(text))
-      .replace(/\s+/g, ' ')
-      .replace(/\n+/g, ' ')
-      .trim() : "";
-  }
+export const sanitiseText = async (text: string): Promise<string> => {
+  return text != "" ? (await stripHtml(text))
+    .replace(/\s+/g, ' ')
+    .replace(/\n+/g, ' ')
+    .trim() : "";
 }
 
