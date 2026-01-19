@@ -1,6 +1,6 @@
 import {Attribution, ExtMetadata, ImageInfo} from "../types/types.js";
 import {sanitiseText} from "./service.js";
-import {htmlToText} from "html-to-text";
+import {stripHtml} from "@dndxdnd/strip-html";
 
 export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
 
@@ -8,29 +8,29 @@ export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
 
   return {
     author: await sanitiseText(extMetadata.Artist?.value),
-    date: getDate(extMetadata),
+    date: await getDate(extMetadata),
     licence: extMetadata.LicenseShortName.value,
     licenceUrl: encodeURI(extMetadata.LicenseUrl?.value),
     url: encodeURI(imageInfo.descriptionurl),
   }
 }
 
-export function getDate(md: ExtMetadata): string {
+export function getDate(md: ExtMetadata): Promise<string> {
   const dateValue = md.DateTimeOriginal?.value ?? md.DateTime?.value;
   return parseDate(dateValue);
 }
 
-export function parseDate(dateValue: string) {
-  const {datePart, fromWikimedia} = parseWikimediaDateFormat(htmlToText(dateValue))
+export async function parseDate(dateValue: string) {
+  const {datePart, fromWikimedia} = parseWikimediaDateFormat(await stripHtml(dateValue))
 
   if (datePart === undefined) return fromWikimedia
 
   const date = new Date(datePart)
   let fromDatePart = date.toLocaleDateString('en-GB', {dateStyle: 'long'});
   if(fromDatePart == 'Invalid Date')
-    fromDatePart = htmlToText(datePart).replace(/\s+/g, ' ').trim()
+    fromDatePart = (await stripHtml(datePart)).replace(/\s+/g, ' ').trim()
 
-  return fromWikimedia && fromDatePart != fromWikimedia ? `${fromDatePart} ${fromWikimedia}` : fromDatePart
+  return fromWikimedia !== undefined && fromWikimedia.length > 0 && fromDatePart != fromWikimedia ? `${fromDatePart} ${fromWikimedia}` : fromDatePart
 }
 
 function parseWikimediaDateFormat(date: string): {datePart?: string, fromWikimedia?: string} {
