@@ -23,9 +23,6 @@ export function getDate(md: ExtMetadata): string {
 export function parseDate(dateValue: string) {
   const {datePart, fromWikimedia} = parseWikimediaDateFormat(htmlToText(dateValue))
 
-  console.log("datePart", datePart)
-  console.log("fromWikimedia", fromWikimedia)
-
   if (datePart === undefined) return fromWikimedia
 
   const date = new Date(datePart)
@@ -42,8 +39,6 @@ function parseWikimediaDateFormat(date: string): {datePart?: string, fromWikimed
 
   const re = new RegExp(`${marker}.[^,]*,`);
   const parts = date.split(re).map(s => s.trim())
-
-  console.log(parts.join(' | '))
 
   let textPart: string, wikimediaQSPart: string
   if (parts.length == 1) {
@@ -87,9 +82,6 @@ function parseWikimediaDateFormat(date: string): {datePart?: string, fromWikimed
     ...[monthName(monthNumber)].filter(() => monthNumber != 0),
     ...[day].filter(() => day != 0).toString(),
   ].slice(0, precision - 8).reverse().join(' ')
-
-  console.log("textPart", textPart)
-  console.log("dateString", dateString)
 
   return textPart == dateString ?
     {fromWikimedia: dateString} : {datePart: textPart != "" ? textPart : undefined, fromWikimedia: dateString}
