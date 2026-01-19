@@ -129,6 +129,18 @@ test('Don’t show month with year precision', async () => {
   expect (await parseDate("date QS:P571,1797-05-07T00:00:00Z/9")).toBe("1797")
 })
 
+test('If precision is missing, derive it from the date string – year', async () => {
+  expect (await parseDate("date QS:P571,1797-00-00")).toBe("1797")
+})
+
+test('If precision is missing, derive it from the date string – month', async () => {
+  expect (await parseDate("date QS:P571,1797-05-00")).toBe("May 1797")
+})
+
+test('If precision is missing, derive it from the date string – day', async () => {
+  expect (await parseDate("date QS:P571,1797-05-07")).toBe("7 May 1797")
+})
+
 test('BCE date', async () => {
   expect (await parseDate("date QS:P571,-1797-00-00T00:00:00Z/9")).toBe("1797 BCE")
 })

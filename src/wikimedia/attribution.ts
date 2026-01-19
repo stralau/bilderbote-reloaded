@@ -95,7 +95,7 @@ function parseWikimediaDateFormat(date: string): { datePart?: string, fromWikime
   const year = sign === '-' ? `${yearPart} BCE` : yearPart;
   const monthNumber = parseInt(monthPart.slice(1) ?? "0");
   // Wikimedia precision: 9 = year, 10 = month, 11 = day
-  const precision = parseInt(precisionPart?.slice(1) ?? "9")
+  const precision = parseInt(precisionPart?.slice(1) ?? "11")
   const day = parseInt(dayPart.slice(1) ?? "0");
 
   const dateString = [
