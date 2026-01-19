@@ -10,8 +10,8 @@ export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
     author: await sanitiseText(extMetadata.Artist?.value),
     date: getDate(extMetadata),
     licence: extMetadata.LicenseShortName.value,
-    licenceUrl: extMetadata.LicenseUrl?.value,
-    url: imageInfo.descriptionurl,
+    licenceUrl: encodeURI(extMetadata.LicenseUrl?.value),
+    url: encodeURI(imageInfo.descriptionurl),
   }
 }
 
