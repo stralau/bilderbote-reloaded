@@ -1,4 +1,4 @@
-import {Attribution, ExtMetadata, ImageInfo} from "../types/types.js";
+import {Attribution, ExtMetadata, ImageInfo, map, optional} from "../types/types.js";
 import {sanitiseText} from "./service.js";
 import {stripHtml} from "@dndxdnd/strip-html";
 
@@ -6,13 +6,11 @@ export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
 
   const extMetadata = imageInfo.extmetadata;
 
-  const licenceUrl = extMetadata.LicenseUrl?.value;
-
   return {
     author: await sanitiseText(extMetadata.Artist?.value),
     date: await getDate(extMetadata),
     licence: extMetadata.LicenseShortName.value,
-    licenceUrl: licenceUrl?  encodeURI(licenceUrl) : undefined,
+    licenceUrl: map(optional(extMetadata.LicenseUrl?.value), encodeURI),
     url: encodeURI(imageInfo.descriptionurl),
   }
 }

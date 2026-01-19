@@ -63,3 +63,22 @@ export class HttpStatusError extends Error {
     super((message + ' ' || '') + `HTTP status ${status}`)
   }
 }
+
+type Option<T> = T | null
+
+export function optional<T>(value: T | null | undefined): Option<T> {
+  return value === null || value === undefined ? null : value
+}
+
+export function isEmpty<T>(o: Option<T>): boolean {
+  return o === null
+}
+
+export function get<T>(o: Option<T>): T {
+  if (isEmpty(o)) throw new Error('Trying to get the value of an empty option')
+  return o
+}
+
+export function map<T, U>(o: Option<T>, f: (t: T) => U): Option<U> {
+  return o === null ? null : f(o)
+}
