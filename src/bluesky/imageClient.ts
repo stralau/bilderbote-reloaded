@@ -2,7 +2,7 @@ import {PostImageClient} from "../types/socialMediaClients.js";
 import {AtpAgent} from "@atproto/api";
 import {WikimediaObject} from "../types/types.js";
 import {BlueskyAttribution} from "./attributionClient.js";
-import sharp from "sharp";
+import sharp, {Sharp} from "sharp";
 
 interface BlueskyConfig {
   username: string,
@@ -63,10 +63,11 @@ async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer
     console.log(`Image is too large: ${md.width}x${md.height}, ${image.byteLength} bytes. Resizing dimensions.`)
     counter++
     image = await sharp(image)
-      .resize(1000, 1000, {fit: 'contain', withoutEnlargement: true})
+      .resize(1000, 1000, {fit: 'inside', withoutEnlargement: true})
       .jpeg({quality: 90, mozjpeg: true})
       .toBuffer()
 
+    md = await sharp(image).metadata()
     console.log(`Resized to ${md.width}x${md.height}, ${image.byteLength} bytes.`)
   }
 
