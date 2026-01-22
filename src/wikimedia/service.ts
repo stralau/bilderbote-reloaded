@@ -1,11 +1,10 @@
 import {ContentType, contentTypeFrom, matchesContentType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
 import {retry} from "../util/Retry.js";
-import {Wikimedia} from "../wikimedia/client.js";
+import {Wikimedia} from "./client.js";
 import {ExtMetadata, HttpStatusError, ImageInfo, ImageInfoResponse, WikimediaObject} from "../types/types.js";
 import {Result} from "../util/Result.js";
-import {htmlToText} from "html-to-text";
-import {stripHtml} from "@dndxdnd/strip-html";
 import {attribution} from "./attribution.js";
+import {parseHTML} from 'linkedom'
 
 export class WikimediaService {
   private static knownMediaTypes: ContentType[] =
@@ -74,15 +73,21 @@ export class WikimediaService {
   getDescription = async (extMetadata: ExtMetadata): Promise<string> => {
 
     const description = extMetadata.ImageDescription?.value ?? extMetadata.ObjectName?.value;
-    return await sanitiseText(description);
+    return sanitiseText(description);
 
   }
 }
 
-export const sanitiseText = async (text: string): Promise<string> => {
-  return text != "" ? (await stripHtml(text))
-    .replace(/\s+/g, ' ')
-    .replace(/\n+/g, ' ')
-    .trim() : "";
-}
+export const sanitiseText = (text: string): string => {
 
+  const html = `<html lang=\"en\"><body>${text}</body></html>`
+
+  const dom = parseHTML(html);
+  const document = dom.window.document
+
+  document.querySelectorAll('script, style').forEach(el => el.remove())
+
+  return document.body?.textContent?.replace(/\s+/g, ' ')
+    .replace(/\n+/g, ' ')
+    .trim() ?? text;
+}

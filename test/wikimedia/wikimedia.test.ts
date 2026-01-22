@@ -66,23 +66,28 @@ test('Strips unparsable date', async () => {
 
 
 test('Removes html' , async () => {
-  expect(await sanitiseText("<span>Hello</span>, world!")).toBe("Hello, world!")
+  expect(sanitiseText("<span>Hello</span>, world!")).toBe("Hello, world!")
 })
 
 test('Removes double spaces' , async () => {
-  expect(await sanitiseText("Hello,  world!")).toBe("Hello, world!")
+  expect(sanitiseText("Hello,  world!")).toBe("Hello, world!")
 })
 
 test('Removes <br/>' , async () => {
-  expect(await sanitiseText("Hello,<br/>world!")).toBe("Hello,world!")
+  expect(sanitiseText("Hello,<br/>world!")).toBe("Hello,world!")
 })
 
 test('Removes newline' , async () => {
-  expect(await sanitiseText("Hello,\nworld!")).toBe("Hello, world!")
+  expect(sanitiseText("Hello,\nworld!")).toBe("Hello, world!")
 })
 
 test('Strips HTML from empty string' , async () => {
-  expect(await sanitiseText("")).toBe("")
+  expect(sanitiseText("")).toBe("")
+})
+
+test('Strips HTML including <style> elements', async () => {
+  expect(sanitiseText('<style data-mw-deduplicate=\\"TemplateStyles:r1120359340\\">.mw-parser-output .messagebox{margin:4px 0;width:auto;border-collapse:collapse;border:2px solid var(--border-color-progressive,#6485d1);background-color:var(--background-color-neutral-subtle,#fbfcff);color:var(--color-base,#202122);box-sizing:border-box;border-inline-start-width:8px}.mw-parser-output .messagebox.mbox-small{font-size:88%;line-height:1.25em}.mw-parser-output .mbox-warning,.mw-parser-output .mbox-speedy{border:2px solid var(--border-color-error,#b22222);background:var(--background-color-error-subtle,#ffdbdb);border-inline-start-width:8px}.mw-parser-output .mbox-serious,.mw-parser-output .mbox-delete,.mw-parser-output .mbox-stop{border:2px solid var(--border-color-error,#b22222);border-inline-start-width:8px}.mw-parser-output .mbox-issue,.mw-parser-output .mbox-content{border:2px solid #f28500;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-query,.mw-parser-output .mbox-style{border:2px solid #f4c430;background:var(--background-color-warning-subtle,#ffe);border-inline-start-width:8px}.mw-parser-output .mbox-shit{border:2px solid #960;border-inline-start-width:8px}.mw-parser-output .mbox-license{border:2px solid #88a;border-inline-start-width:initial}.mw-parser-output .mbox-legal{border:2px solid var(--border-color-notice,#666);background:var(--background-color-base,#fff);border-inline-start-width:8px}.mw-parser-output .mbox-honor{border:2px solid #ca3;background:var(--background-color-warning-subtle,#fcf4db);border-inline-start-width:8px}.mw-parser-output .mbox-growth{border:2px solid #8d4;background:var(--background-color-success-subtle,#d5fdf4);border-inline-start-width:8px}.mw-parser-output .mbox-move{border:2px solid #93c;border-inline-start-width:8px}.mw-parser-output .mbox-protection,.mw-parser-output .mbox-message{border:2px solid var(--border-color-base,#aaa);border-inline-start-width:8px}.mw-parser-output .messagebox .mbox-text{border:none;padding:0.25em 0.9em;width:100%}.mw-parser-output .messagebox .mbox-image{border:none;padding:2px 0 2px 0.9em;text-align:center}.mw-parser-output .messagebox .mbox-imageright{border:none;padding:2px 0.9em 2px 0;text-align:center}.mw-parser-output .messagebox .mbox-empty-cell{border:none;padding:0;width:1px}.mw-parser-output .messagebox .mbox-invalid-type{text-align:center}@media(min-width:720px){.mw-parser-output .messagebox{margin:4px 10%}.mw-parser-output .messagebox.mbox-small{clear:right;float:right;margin:4px 0 4px 1em;width:238px}}body.skin--responsive .mw-parser-output table.messagebox img{max-width:none!important}</style><table class=\\"plainlinks messagebox mbox-message\\" role=\\"presentation\\"><tbody><tr><td class=\\"mbox-image\\"><span typeof=\\"mw:File\\"><a href=\\"//commons.wikimedia.org/wiki/File:Wikidata-logo.svg\\" class=\\"mw-file-description\\"><img src=\\"https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Wikidata-logo.svg/40px-Wikidata-logo.svg.png\\" decoding=\\"async\\" width=\\"30\\" height=\\"17\\" class=\\"mw-file-element\\" srcset=\\"https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Wikidata-logo.svg/60px-Wikidata-logo.svg.png 1.5x\\" data-file-width=\\"1050\\" data-file-height=\\"590\\"></a></span></td><td class=\\"mbox-text\\"><a href=\\"https://www.wikidata.org/wiki/Wikidata:Main_page\\" class=\\"extiw\\" title=\\"wikidata:Wikidata:Main page\\">Wikidata</a> has <a href=\\"https://www.wikidata.org/wiki/Q22953444\\" class=\\"extiw\\" title=\\"d:Q22953444\\">entry Chapelle des Pénitents blancs de Narbonne <small>(Q22953444)</small></a> with data related to this item.</td></tr></tbody></table>'))
+    .toBe("Wikidata has entry Chapelle des Pénitents blancs de Narbonne (Q22953444) with data related to this item.")
 })
 
 test('Parses date correctly', async () => {

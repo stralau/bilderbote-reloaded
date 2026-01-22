@@ -7,7 +7,7 @@ export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
   const extMetadata = imageInfo.extmetadata;
 
   return {
-    author: await map(optional(extMetadata.Artist?.value), sanitiseText),
+    author: map(optional(extMetadata.Artist?.value), sanitiseText),
     date: await getDate(extMetadata),
     licence: extMetadata.LicenseShortName.value,
     licenceUrl: extMetadata.LicenseUrl?.value,
