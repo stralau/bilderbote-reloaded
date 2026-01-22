@@ -74,7 +74,7 @@ test('Removes double spaces' , async () => {
 })
 
 test('Removes <br/>' , async () => {
-  expect(sanitiseText("Hello,<br/>world!")).toBe("Hello,world!")
+  expect(sanitiseText("Hello,<br/>world!")).toBe("Hello, world!")
 })
 
 test('Removes newline' , async () => {
