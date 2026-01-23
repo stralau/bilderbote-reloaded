@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import {WikimediaClient} from "./wikimedia/client.js";
 import {MastodonAttributionClient, MastodonImageClient} from "./mastodon/client.js";
 import {HttpClient} from "./net/httpClient.js";
-import {BlueskyAttribution} from "./bluesky/attributionClient.js";
+import {AttributionClient} from "./bluesky/attributionClient.js";
 import {BlueskyImage} from "./bluesky/imageClient.js";
 
 export const handler = async () => {
@@ -14,7 +14,7 @@ export const handler = async () => {
   const httpClient = new HttpClient({userAgent: process.env.USER_AGENT});
   const wikimediaClient = new WikimediaClient(httpClient);
   const wikimedia = new WikimediaService(wikimediaClient)
-  const attributionClient = new BlueskyAttribution({
+  const attributionClient = new AttributionClient({
     username: process.env.BLUESKY_ATTRIBUTION_USERNAME,
     password: process.env.BLUESKY_ATTRIBUTION_PASSWORD,
     imageClientHandle: process.env.BLUESKY_IMAGE_HANDLE

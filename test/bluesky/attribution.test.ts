@@ -1,4 +1,4 @@
-import {AttributionEntries} from "../../src/bluesky/attribution";
+import {BlueskyAttributionEntries as AttributionEntries} from "../../src/bluesky/attribution";
 
 test('Renders attribution', () => {
   const attribution = new AttributionEntries({

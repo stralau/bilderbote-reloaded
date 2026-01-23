@@ -1,7 +1,7 @@
 import {PostImageClient} from "../types/socialMediaClients.js";
 import {AtpAgent} from "@atproto/api";
 import {WikimediaObject} from "../types/types.js";
-import {BlueskyAttribution} from "./attributionClient.js";
+import {AttributionClient} from "./attributionClient.js";
 import sharp, {Sharp} from "sharp";
 
 interface BlueskyConfig {
@@ -13,7 +13,7 @@ interface BlueskyConfig {
 export class BlueskyImage implements PostImageClient {
   private readonly agent: AtpAgent;
 
-  constructor(private readonly config: BlueskyConfig, private readonly attributionClient: BlueskyAttribution) {
+  constructor(private readonly config: BlueskyConfig, private readonly attributionClient: AttributionClient) {
     this.agent = new AtpAgent({
       service: 'https://bsky.social',
       headers: [['User-Agent', config.userAgent]]

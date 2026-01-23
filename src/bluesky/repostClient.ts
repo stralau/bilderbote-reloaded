@@ -3,7 +3,8 @@ import sharp from "sharp";
 import {Attribution, WikimediaObject} from "../types/types.js";
 import {randomElement} from "../util/util.js";
 import {PostImageClient, RepostClient} from "../types/socialMediaClients.js";
-import {AttributionEntries} from "./attribution.js";
+
+import {AttributionEntries} from "../util/attributionEntries.js";
 
 interface BlueskyRepostConfig {
   username: string,

@@ -1,3 +1,5 @@
+import {AttributionEntries, AttributionEntry} from "../util/attributionEntries.js";
+
 type linkFacet = {
   index: {
     byteStart: number,
@@ -9,69 +11,32 @@ type linkFacet = {
   }]
 }
 
-export class AttributionEntries {
-  readonly entries: AttributionEntry[]
-
+export class BlueskyAttributionEntries {
+  get attributionEntries(): AttributionEntries {
+    return this._attributionEntries;
+  }
+  private readonly _attributionEntries: AttributionEntries
 
   constructor(...entries: { key: string, value: string, maxLength?: number, link?: string }[]) {
-    const newline = 1
-    const calculateNextOffset = (e: AttributionEntry) => e.offset + e.attributionLength + newline
-
-    this.entries = entries.reduce(
-      (acc, {key, value, maxLength, link}) =>
-        [...acc, new AttributionEntry(acc.length > 0 ? calculateNextOffset(acc.at(-1)) : 0, key, value, maxLength, link)],
-      [] as AttributionEntry[]
-    )
+    this._attributionEntries = new AttributionEntries(...entries)
   }
 
   attributionText(): string {
-    return this.entries.map((e) => e.attribution)
-      .join("\n")
-      .slice(0, 300)
+    return this._attributionEntries.attributionText()
   }
 
   facets: () => linkFacet[] = () =>
-    this.entries.flatMap(e => e.facets());
-
-}
-
-class AttributionEntry {
-  private readonly _attribution: string;
-  private readonly _attributionLength: number;
-
-  constructor(
-    public readonly offset: number,
-    key: string,
-    private readonly value: string,
-    maxLength?: number,
-    private readonly link?: string
-  ) {
-    const text = `${key}: ${value}`;
-    this._attribution = maxLength ? text.slice(0, maxLength) : text
-    this._attributionLength = utf8Length(this._attribution)
-  }
-
-  facets: () => linkFacet[] = () => {
-    return this.link ? [{
-      index: {
-        byteStart: this.offset + this._attributionLength - utf8Length(this.value),
-        byteEnd: this.offset + this._attributionLength
-      },
-      features: [{
-        $type: 'app.bsky.richtext.facet#link',
-        uri: this.link
-      }]
-    }] : []
-  }
-
-  get attributionLength(): number {
-    return this._attributionLength;
-  }
-
-  get attribution(): string {
-    return this._attribution;
-  }
-
+    this._attributionEntries.entries.flatMap((e: AttributionEntry) =>
+      e.link ? [{
+        index: {
+          byteStart: e.offset + e.attributionLength - utf8Length(e.value),
+          byteEnd: e.offset + e.attributionLength
+        },
+        features: [{
+          $type: 'app.bsky.richtext.facet#link',
+          uri: e.link
+        }]
+      }] : []);
 }
 
 const encoder = new TextEncoder()
