@@ -2,12 +2,16 @@ import {repostHandler} from "./repostHandler.js";
 import {handler as imageHandler} from "./handler.js";
 
 (async () => {
-  const handlerName = process.argv[2]
+  const args = process.argv.slice(2);
+  const handlerName = args[0]
   let handler: () => Promise<any>;
 
   switch (handlerName) {
     case 'image':
-      handler = imageHandler
+      if (args.length > 1) {
+        handler = () => imageHandler(args[1])
+      } else
+        handler = imageHandler;
       break;
     case 'repost':
       handler = repostHandler

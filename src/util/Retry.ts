@@ -20,6 +20,7 @@ export async function retry<T>(r: Retry<T>): Promise<Result<T>> {
 
   const result = await r.fn()
   if (result.r.success === true || r.isFatal && r.isFatal(result.r.error)) return result
+  console.log(`Failed with error: ${result.r.error.message}, retrying...`)
   return retry({...r, attempts: r.attempts - 1})
 
 }

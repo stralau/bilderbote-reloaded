@@ -7,7 +7,7 @@ import {HttpClient} from "./net/httpClient.js";
 import {AttributionClient} from "./bluesky/attributionClient.js";
 import {BlueskyImage} from "./bluesky/imageClient.js";
 
-export const handler = async () => {
+export const handler = async (location?: string | undefined) => {
 
   dotenv.config();
 
@@ -38,7 +38,7 @@ export const handler = async () => {
 
   console.log("fetching image")
 
-  let image = await wikimedia.fetchWikimediaObject()
+  let image = await wikimedia.fetchWikimediaObject(location)
 
   console.log("image fetched", JSON.stringify(image, null, 2))
 

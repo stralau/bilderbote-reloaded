@@ -15,11 +15,11 @@ export class WikimediaService {
   public constructor(private readonly wikimedia: Wikimedia) {
   }
 
-  public fetchWikimediaObject = async (): Promise<WikimediaObject> => {
+  public fetchWikimediaObject = async (location?: string | undefined): Promise<WikimediaObject> => {
 
     const imageInfoResult = await retry({
       attempts: 10,
-      fn: this.fetchInfo,
+      fn: () => this.fetchInfo(location),
       isFatal: e => e instanceof HttpStatusError && e.status == 429,
     });
 
@@ -34,8 +34,12 @@ export class WikimediaService {
 
   }
 
-  fetchInfo = async () => {
-    const location = await this.wikimedia.fetchRandomFileLocation();
+  fetchInfo = async (location?: string | undefined) => {
+
+    if (!location) {
+      location = await this.wikimedia.fetchRandomFileLocation();
+    }
+
     console.log("location", location)
 
     const imageInfoResponse = await this.wikimedia.fetchImageInfo(location);
