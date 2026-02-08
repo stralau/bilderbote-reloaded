@@ -70,7 +70,7 @@ export class MastodonImageClient implements PostImageClient {
       return {image, scaled: false}
     }
 
-    const ratio = 8_388_608 / (md.width * md.height)
+    const ratio = Math.sqrt(8_388_608 / (md.width * md.height))
     const width = Math.floor(md.width * ratio);
 
     console.log(`Image is too large: ${md.width}x${md.height}, ${image.byteLength} bytes. Resizing to width ${width}.`)
