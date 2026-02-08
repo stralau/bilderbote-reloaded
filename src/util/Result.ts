@@ -1,5 +1,6 @@
-export class Result<T, E = Error > {
-  constructor(public readonly r: { success: true; value: T } | { success: false; error: E }) {}
+export class Result<T, E = Error> {
+  constructor(public readonly r: { success: true; value: T } | { success: false; error: E }) {
+  }
 
   static ok<T, E = Error>(value: T): Result<T, E> {
     return new Result({success: true, value: value})
@@ -9,8 +10,12 @@ export class Result<T, E = Error > {
     return new Result({success: false, error: error})
   }
 
-  static tryAsync<T, E = Error>(fn: () => Promise<T>): Promise<Result<T, E>> {
-    return fn().then(ok => Result.ok(ok), (err: E) => Result.err(err))
+  static async tryAsync<T, E = Error>(fn: () => Promise<T>): Promise<Result<T, E>> {
+    try {
+      return Result.ok<T, E>(await fn());
+    } catch (err) {
+      return Result.err<T, E>(err);
+    }
   }
 
   success(): boolean {
