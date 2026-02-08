@@ -2,6 +2,7 @@ import {PostImageClient, RepostClient} from "../types/socialMediaClients.js";
 import {Attribution, WikimediaObject} from "../types/types.js";
 import * as Mastodon from 'tsl-mastodon-api';
 import {randomElement} from "../util/util.js";
+import {AttributionEntries} from "../util/attributionEntries.js";
 
 export class MastodonImageClient implements PostImageClient {
 
@@ -56,11 +57,10 @@ export class MastodonAttributionClient {
 
     console.log("Posting attribution...")
 
+    const attribution = new AttributionEntries(attr, 500)
+
     await mastodon.postStatus({
-      status: `Author: ${attr.author.slice(0, 50)}
-Date: ${attr.date.slice(0, 30)}
-Licence: ${attr.licence.slice(0, 40)}
-Source: ${attr.url}`,
+      status: attribution.attributionText(),
       in_reply_to_id: originalPostId
     })
   }

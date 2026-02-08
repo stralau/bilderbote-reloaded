@@ -1,5 +1,4 @@
 import {BlueskyAttributionEntries as AttributionEntries} from "../../src/bluesky/attribution";
-import {Attribution} from "../../src/types/types";
 
 test('Renders attribution', () => {
   const attribution = new AttributionEntries({
@@ -34,8 +33,6 @@ test('Handles multibyte characters', () => {
       licenceUrl: "https://creativecommons.org/licenses/by-sa/2.0/"
     }
   )
-
-  console.log(new TextEncoder().encode("CC-BÜ-Sя").byteLength)
 
   expect(attribution.attributionText()).toBe(`Author: Stralau ❤️
 Licence: CC-BÜ-Sя`)

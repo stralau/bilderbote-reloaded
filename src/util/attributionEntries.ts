@@ -52,8 +52,11 @@ export class AttributionEntries {
     const calculateNextOffset = (e: AttributionEntry) => e.offset + e.attributionLength + newline
 
     this._entries = entries.reduce(
-      (acc, {key, value, maxLength, link}) =>
-        [...acc, new AttributionEntry(acc.length > 0 ? calculateNextOffset(acc.at(-1)) : 0, key, value, maxLength, link)],
+      (acc, {key, value, maxLength, link}) => {
+        const offset = acc.length > 0 ? calculateNextOffset(acc.at(-1)) : 0;
+        const entry = new AttributionEntry(offset, key, value, maxLength, link);
+        return [...acc, entry];
+      },
       [] as AttributionEntry[]
     )
   }
