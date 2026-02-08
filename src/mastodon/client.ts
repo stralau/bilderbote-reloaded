@@ -3,10 +3,18 @@ import {Attribution, WikimediaObject} from "../types/types.js";
 import * as Mastodon from 'tsl-mastodon-api';
 import {randomElement} from "../util/util.js";
 import {AttributionEntries} from "../util/attributionEntries.js";
+import {retry} from "../util/Retry.js";
+import {Result} from "../util/Result.js";
+import * as JSON from "tsl-mastodon-api/lib/JSON/index.js";
+import API from "tsl-mastodon-api/lib/API.js";
 
 export class MastodonImageClient implements PostImageClient {
 
-  constructor(private readonly config: { instance_url: string, accessToken: string, userAgent: string }, private readonly attributionClient: MastodonAttributionClient) {
+  constructor(private readonly config: {
+    instance_url: string,
+    accessToken: string,
+    userAgent: string
+  }, private readonly attributionClient: MastodonAttributionClient) {
   }
 
   async post(image: WikimediaObject): Promise<void> {
@@ -20,22 +28,31 @@ export class MastodonImageClient implements PostImageClient {
     console.log("Posting image...")
 
     try {
-      const media = await mastodon.postMediaAttachment(
-        {
-          file: new File([image.image], "image.jpeg", {type: "image/jpeg"}),
-          description: image.description.slice(0, 1500),
-        },
-        true
-      )
+      // Retry image upload
+      const status = await retry({
+        attempts: 3,
+        fn: () => Result.tryAsync(async () => {
+          const media = await mastodon.postMediaAttachment(
+            {
+              file: new File([image.image], "image.jpeg", {type: "image/jpeg"}),
+              description: image.description.slice(0, 1500),
+            },
+            true
+          )
 
-      console.log(media.json)
+          console.log(media.json)
 
-      const status = await mastodon.postStatus({
-        status: image.description.slice(0, 500),
-        media_ids: [media.json.id],
+          return await mastodon.postStatus({
+            status: image.description.slice(0, 500),
+            media_ids: [media.json.id],
+          })
+        })
       })
 
-      await this.attributionClient.postAttribution(image.attribution, status.json.id)
+      await retry({
+        attempts: 3,
+        fn: () => this.attributionClient.postAttribution(image.attribution, status.get().json.id),
+      })
     } catch (e) {
       console.log(e)
     }
@@ -47,27 +64,31 @@ export class MastodonAttributionClient {
   constructor(private readonly config: { accessToken: string }) {
   }
 
-  async postAttribution(attr: Attribution, originalPostId: string): Promise<void> {
-    console.log("Logging in...")
+  async postAttribution(attr: Attribution, originalPostId: string): Promise<Result<API.Success<(JSON.Status | JSON.StatusSchedule)>>> {
 
-    const mastodon = new Mastodon.API({
-      access_token: this.config.accessToken,
-      api_url: "https://mastodon.social/api/v1/"
-    })
+    return Result.tryAsync(async () => {
+      console.log("Logging in...")
 
-    console.log("Posting attribution...")
+      const mastodon = new Mastodon.API({
+        access_token: this.config.accessToken,
+        api_url: "https://mastodon.social/api/v1/"
+      })
 
-    const attribution = new AttributionEntries(attr, 500)
+      console.log("Posting attribution...")
 
-    await mastodon.postStatus({
-      status: attribution.attributionText(),
-      in_reply_to_id: originalPostId
+      const attribution = new AttributionEntries(attr, 500)
+
+      return await mastodon.postStatus({
+        status: attribution.attributionText(),
+        in_reply_to_id: originalPostId
+      })
     })
   }
 
+
 }
 
-export class MastodonRepostClient implements RepostClient{
+export class MastodonRepostClient implements RepostClient {
 
   constructor(private readonly config: { accessToken: string, imageAccountID: string }) {
   }

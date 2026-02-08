@@ -1,5 +1,3 @@
-import assert from "node:assert";
-
 export class Result<T, E = Error > {
   constructor(public readonly r: { success: true; value: T } | { success: false; error: E }) {}
 
@@ -9,6 +7,10 @@ export class Result<T, E = Error > {
 
   static err<T, E = Error>(error: E): Result<T, E> {
     return new Result({success: false, error: error})
+  }
+
+  static tryAsync<T, E = Error>(fn: () => Promise<T>): Promise<Result<T, E>> {
+    return fn().then(ok => Result.ok(ok), (err: E) => Result.err(err))
   }
 
   success(): boolean {

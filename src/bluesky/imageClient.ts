@@ -3,6 +3,8 @@ import {AtpAgent} from "@atproto/api";
 import {WikimediaObject} from "../types/types.js";
 import {AttributionClient} from "./attributionClient.js";
 import sharp, {Sharp} from "sharp";
+import {retry} from "../util/Retry.js";
+import {Result} from "../util/Result.js";
 
 interface BlueskyConfig {
   username: string,
@@ -22,15 +24,28 @@ export class BlueskyImage implements PostImageClient {
 
 
   async post(image: WikimediaObject): Promise<void> {
+    const result = await retry({
+      attempts: 3,
+      fn: () => Result.tryAsync(async () => {
+        console.log("Logging in...")
+        await this.agent.login({identifier: this.config.username, password: this.config.password})
+        console.log(`Posting image: ${image.attribution.url}...`)
+        const {uri, cid} = await this.postImage(image);
+        console.log("Just posted! URI: ", uri, " CID: ", cid);
+        return {uri, cid}
+      })
+    })
 
-    console.log("Logging in...")
-    await this.agent.login({identifier: this.config.username, password: this.config.password})
-    console.log(`Posting image: ${image.attribution.url}...`)
-    const {uri, cid} = await this.postImage(image);
-    console.log("Just posted! URI: ", uri, " CID: ", cid);
-    console.log(`Posting attribution for ${image.attribution.url}...`)
-    await this.attributionClient.post(image.attribution, cid, uri)
-    console.log("Done!")
+    const {uri, cid} = result.get()
+
+    await retry({
+      attempts: 3,
+      fn: () => Result.tryAsync(async () => {
+        console.log(`Posting attribution for ${image.attribution.url}...`)
+        await this.attributionClient.post(image.attribution, cid, uri)
+        console.log("Done!")
+      })
+    })
   }
 
   private async postImage(image: WikimediaObject): Promise<{ uri: string, cid: string }> {
