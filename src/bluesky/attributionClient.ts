@@ -19,12 +19,7 @@ export class AttributionClient {
 
   async post(attr: Attribution, cid: string, uri: string): Promise<void> {
 
-    const attribution = new BlueskyAttributionEntries(
-      {key: "Author", value: attr.author, maxLength: 90},
-      {key: "Date", value: attr.date, maxLength: 90},
-      {key: "Licence", value: attr.licence, maxLength: 90, link: attr.licenceUrl},
-      {key: "Source", value: attr.url, link: attr.url}
-    )
+    const attribution = new BlueskyAttributionEntries(attr)
 
     console.log("attribution entries:", JSON.stringify(attribution.attributionEntries, null, 2))
     console.log("attribution", attribution.attributionText())

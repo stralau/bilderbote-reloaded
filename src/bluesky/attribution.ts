@@ -1,4 +1,5 @@
 import {AttributionEntries, AttributionEntry} from "../util/attributionEntries.js";
+import {Attribution} from "../types/types.js";
 
 type linkFacet = {
   index: {
@@ -17,8 +18,8 @@ export class BlueskyAttributionEntries {
   }
   private readonly _attributionEntries: AttributionEntries
 
-  constructor(...entries: { key: string, value: string, maxLength?: number, link?: string }[]) {
-    this._attributionEntries = new AttributionEntries(...entries)
+  constructor(attribution: Attribution) {
+    this._attributionEntries = new AttributionEntries(attribution, 300)
   }
 
   attributionText(): string {

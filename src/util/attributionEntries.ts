@@ -1,10 +1,14 @@
+import {Attribution} from "../types/types.js";
+
 export class AttributionEntry {
   get value(): string {
     return this._value;
   }
+
   get link(): string {
     return this._link;
   }
+
   private readonly _attribution: string;
   private readonly _attributionLength: number;
 
@@ -33,7 +37,17 @@ export class AttributionEntry {
 export class AttributionEntries {
   private readonly _entries: AttributionEntry[]
 
-  constructor(...entries: { key: string, value: string, maxLength?: number, link?: string }[]) {
+  constructor(attribution: Attribution, private readonly maxLength: number) {
+
+    const entryMaxLength = (maxLength - 30) / 3
+    const entries = [
+      attribution.author ? {key: "Author", value: attribution.author, maxLength: entryMaxLength} : [],
+      attribution.date ? {key: "Date", value: attribution.date, maxLength: entryMaxLength} : [],
+      attribution.licence ? {key: "Licence", value: attribution.licence, maxLength: entryMaxLength, link: attribution.licenceUrl} : [],
+      attribution.url ? {key: "Source", value: attribution.url, link: attribution.url} : []
+    ].flat()
+
+
     const newline = 1
     const calculateNextOffset = (e: AttributionEntry) => e.offset + e.attributionLength + newline
 
@@ -47,7 +61,7 @@ export class AttributionEntries {
   attributionText(): string {
     return this._entries.map((e) => e.attribution)
       .join("\n")
-      .slice(0, 300)
+      .slice(0, this.maxLength)
   }
 
   get entries(): AttributionEntry[] {
