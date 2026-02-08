@@ -2,9 +2,10 @@ import {PostImageClient} from "../types/socialMediaClients.js";
 import {AtpAgent} from "@atproto/api";
 import {WikimediaObject} from "../types/types.js";
 import {AttributionClient} from "./attributionClient.js";
-import sharp, {Sharp} from "sharp";
+import sharp, {Metadata, Sharp} from "sharp";
 import {retry} from "../util/Retry.js";
 import {Result} from "../util/Result.js";
+import {downScale} from "../util/image.js";
 
 interface BlueskyConfig {
   username: string,
@@ -49,7 +50,7 @@ export class BlueskyImage implements PostImageClient {
   }
 
   private async postImage(image: WikimediaObject): Promise<{ uri: string, cid: string }> {
-    const blob = await downScale(Buffer.from(await image.image.arrayBuffer()), 976_560)
+    const blob = await downScale(image.image, 976_560, this.scaleDimensions)
 
     const blobRef = await this.agent.uploadBlob(blob)
       .then(r => r.data.blob)
@@ -66,17 +67,11 @@ export class BlueskyImage implements PostImageClient {
     });
   }
 
-}
-
-async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer> {
-
-  let image = original
-  let md = await sharp(image).metadata()
-
-  let counter = 0
-  if (md.width > 1000 && md.height > 1000) {
+  private async scaleDimensions(image: Buffer, md: Metadata): Promise<{image: Buffer, scaled: boolean}> {
+    if (md.width <= 1000 && md.height <= 1000) {
+      return {image, scaled: false}
+    }
     console.log(`Image is too large: ${md.width}x${md.height}, ${image.byteLength} bytes. Resizing dimensions.`)
-    counter++
     image = await sharp(image)
       .resize(1000, 1000, {fit: 'inside', withoutEnlargement: true})
       .jpeg({quality: 90, mozjpeg: true})
@@ -84,19 +79,8 @@ async function downScale(original: Buffer, maxSizeBytes: number): Promise<Buffer
 
     md = await sharp(image).metadata()
     console.log(`Resized to ${md.width}x${md.height}, ${image.byteLength} bytes.`)
+
+    return {image, scaled: true}
   }
 
-  async function shrink(image: Buffer, quality: number, counter: number): Promise<{ image: Buffer, counter: number }> {
-    if (image.byteLength <= maxSizeBytes) return {image: image, counter: counter}
-
-    console.log(`Image is too large: ${image.byteLength} bytes`)
-
-    return shrink(await sharp(image).jpeg({quality: quality, mozjpeg: true}).toBuffer(), quality - 5, counter + 1)
-  }
-
-  const result = await shrink(image, 90, counter)
-
-  if (result.counter > 0) console.log(`Downscaled image ${result.counter} times`)
-
-  return result.image
 }
