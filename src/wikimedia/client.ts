@@ -47,6 +47,8 @@ export class WikimediaClient implements Wikimedia {
   };
 
   public async fetchRandomFileLocation(): Promise<string> {
+
+    console.log("Fetching random file location...")
     const res = await this.httpClient.fetch('https://commons.wikimedia.org/wiki/Special:Random', {
       method: 'GET',
       redirect: 'manual'
@@ -58,6 +60,8 @@ export class WikimediaClient implements Wikimedia {
         `Failed to fetch random file location: ${res.status} ${res.statusText}`
       )
     }
+
+    console.log("Fetched random file location: " + res.headers.get('Location'))
 
     return res.headers.get('Location') || ''
   };

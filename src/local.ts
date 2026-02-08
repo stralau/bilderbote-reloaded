@@ -9,9 +9,9 @@ import {handler as imageHandler} from "./handler.js";
   switch (handlerName) {
     case 'image':
       if (args.length > 1) {
-        handler = () => imageHandler(args[1])
+        handler = () => imageHandler({location: args[1]})
       } else
-        handler = imageHandler;
+        handler = () => imageHandler({});
       break;
     case 'repost':
       handler = repostHandler

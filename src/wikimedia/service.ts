@@ -35,14 +35,9 @@ export class WikimediaService {
   }
 
   fetchInfo = async (location?: string | undefined) => {
+    const file = location ?? (await this.wikimedia.fetchRandomFileLocation());
 
-    if (!location) {
-      location = await this.wikimedia.fetchRandomFileLocation();
-    }
-
-    console.log("location", location)
-
-    const imageInfoResponse = await this.wikimedia.fetchImageInfo(location);
+    const imageInfoResponse = await this.wikimedia.fetchImageInfo(file);
     console.log("imageInfoResponse", JSON.stringify(imageInfoResponse, null, 2))
     return this.validate(imageInfoResponse)
   }
