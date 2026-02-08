@@ -1,6 +1,5 @@
 import {Attribution, ExtMetadata, ImageInfo, map, optional} from "../types/types.js";
-import {sanitiseText} from "./service.js";
-import {stripHtml} from "@dndxdnd/strip-html";
+import {sanitiseText} from "../util/text.js";
 
 export async function attribution(imageInfo: ImageInfo): Promise<Attribution> {
 
@@ -25,7 +24,7 @@ async function parseISODate(dateString: string): Promise<string | false> {
     const date = new Date(dateString)
     const formattedDate = date.toLocaleDateString('en-GB', {dateStyle: 'long'});
     return formattedDate == 'Invalid Date' ?
-      (await stripHtml(dateString)).replace(/\s+/g, ' ').trim()
+      sanitiseText(dateString).replace(/\s+/g, ' ').trim()
       : formattedDate
   }
   return false;
@@ -42,7 +41,7 @@ function parseYearMonth(datePart: string) {
 }
 
 export async function parseDate(dateValue: string) {
-  const {datePart, fromWikimedia} = parseWikimediaDateFormat(await stripHtml(dateValue))
+  const {datePart, fromWikimedia} = parseWikimediaDateFormat(sanitiseText(dateValue))
 
   if (datePart === undefined) return fromWikimedia
 

@@ -1,8 +1,8 @@
 import {expect} from "@jest/globals";
 import {Test, withImageInfo} from "./TestHelpers";
 import {ImageInfoResponse} from "../../src/types/types";
-import {sanitiseText} from "../../src/wikimedia/service";
 import {getDate, parseDate} from "../../src/wikimedia/attribution";
+import {sanitiseText} from "../../src/util/text";
 
 test('Fetches image', async () => {
 

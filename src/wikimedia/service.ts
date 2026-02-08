@@ -4,7 +4,7 @@ import {Wikimedia} from "./client.js";
 import {ExtMetadata, HttpStatusError, ImageInfo, ImageInfoResponse, WikimediaObject} from "../types/types.js";
 import {Result} from "../util/Result.js";
 import {attribution} from "./attribution.js";
-import {parseHTML} from 'linkedom'
+import {sanitiseText} from "../util/text.js";
 
 export class WikimediaService {
   private static knownMediaTypes: ContentType[] =
@@ -76,21 +76,4 @@ export class WikimediaService {
     return sanitiseText(description);
 
   }
-}
-
-export const sanitiseText = (text: string): string => {
-
-  const html = `<html lang=\"en\"><body>${text}</body></html>`
-
-  const dom = parseHTML(html);
-  const document = dom.window.document
-
-  document.querySelectorAll('script, style').forEach(el => el.remove())
-  document.querySelectorAll('br').forEach(br => {
-    br.replaceWith(document.createTextNode('\n'));
-  });
-
-  return document.body?.textContent?.replace(/\s+/g, ' ')
-    .replace(/\n+/g, ' ')
-    .trim() ?? text;
 }
