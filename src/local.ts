@@ -15,6 +15,10 @@ import {handler as imageHandler} from "./handler.js";
       break;
     case 'repost':
       handler = repostHandler
+      break;
+    default:
+      console.error(`Unknown command: ${handlerName}. Usage: npm start <image [location] | repost>`)
+      process.exit(1)
   }
 
   const res = await handler();
