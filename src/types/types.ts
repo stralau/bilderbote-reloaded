@@ -60,7 +60,7 @@ export interface ImageInfoResponse {
 
 export class HttpStatusError extends Error {
   constructor(public readonly status: number, message?: string) {
-    super((message + ' ' || '') + `HTTP status ${status}`)
+    super((message ? message + ' ' : '') + `HTTP status ${status}`)
   }
 }
 
