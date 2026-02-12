@@ -33,6 +33,7 @@ export class BlueskyRepost implements RepostClient {
       limit: 6,
       filter: "posts_no_replies"
     })
+    if (timeline.data.feed.length === 0) throw new Error("No Bluesky posts found to repost")
 
     const post: AppBskyFeedDefs.FeedViewPost = randomElement(timeline.data.feed)
 

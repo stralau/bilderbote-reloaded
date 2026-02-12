@@ -137,7 +137,7 @@ export class MastodonRepostClient implements RepostClient {
     console.log("accountID", accountID)
     const posts = await mastodon.getStatuses(accountID, {limit: 6})
       .then(s => s.json)
-
+    if (posts.length === 0) throw new Error("No Mastodon posts found to repost")
 
     const post = randomElement(posts)
 

@@ -17,6 +17,7 @@ export function asArray<T>(value: T | T[]): T[] {
 }
 
 export function randomElement<T>(list: T[]): T {
+  if (list.length === 0) throw new Error("Cannot pick a random element from an empty list")
   const idx = Math.floor(Math.random() * list.length)
   return list[idx]
 }
