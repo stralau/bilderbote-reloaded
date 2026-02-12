@@ -4,7 +4,7 @@ import {HttpStatusError, ImageInfoResponse} from "../types/types.js";
 import {HttpClient} from "../net/httpClient.js";
 
 export interface Wikimedia {
-  fetchImageInfo(location: string): Promise<ImageInfoResponse>
+  fetchImageInfo(filename: string): Promise<ImageInfoResponse>
 
   fetchMediaType(location: string): Promise<Result<MediaType>>
 
@@ -19,9 +19,7 @@ export class WikimediaClient implements Wikimedia {
   }
 
 
-  public fetchImageInfo = async (location: string): Promise<ImageInfoResponse> => {
-    const filename = this.fileName(location)
-
+  public fetchImageInfo = async (filename: string): Promise<ImageInfoResponse> => {
     return await this.httpClient.fetch(`https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url|extmetadata|size&formatversion=2&titles=File:${filename}`)
       .then(res => res.ok ? res : Promise.reject(res))
       .then(res => res.json())
@@ -65,10 +63,5 @@ export class WikimediaClient implements Wikimedia {
 
     return res.headers.get('Location') || ''
   };
-
-  fileName = (location: string): String => location
-    .split("/")
-    .pop()
-    .replace(/^File:/, "");
 
 }

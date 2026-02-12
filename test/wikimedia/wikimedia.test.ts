@@ -26,11 +26,23 @@ test('Take file title if no description', async () => {
     .wikimediaService
 
   return (await withImageInfo("no-description")) (async (imageInfo: ImageInfoResponse) => {
-    const extMetadata = imageInfo.query.pages[0].imageinfo[0].extmetadata
-    const description = await service.getDescription(extMetadata)
+    const description = await service.getDescription(imageInfo.query.pages[0].imageinfo[0])
 
-    expect(description).toEqual(extMetadata.ObjectName.value)
+    expect(description).toEqual(imageInfo.query.pages[0].imageinfo[0].extmetadata.ObjectName.value)
   })
+})
+
+test('Falls back to filename if no description', async () => {
+
+  const service = new Test()
+    .wikimediaService
+
+  const description = await service.getDescription({
+    filename: "Example.jpg",
+    extmetadata: {},
+  } as any)
+
+  expect(description).toEqual("Example.jpg")
 })
 
 test('Sanitises description' , async () => {
@@ -38,8 +50,7 @@ test('Sanitises description' , async () => {
     .wikimediaService
 
   return (await withImageInfo("html-description-with-newlines")) ((imageInfo: ImageInfoResponse) => {
-    const extMetadata = imageInfo.query.pages[0].imageinfo[0].extmetadata
-    service.getDescription(extMetadata).then((desc: string) =>
+    service.getDescription(imageInfo.query.pages[0].imageinfo[0]).then((desc: string) =>
       expect(desc).toEqual("Objectgegevens Titel: Tinnen figuur in de vorm van Franse trompettist (kurassier) te paard Beschrijving: Tinnen beeldje met een groen geschilderd voetstuk. Het beeldje stelt een Franse kurassier, meer in het bijzonder een trompettist te paard rond 1812-1815 voor. Het paard gaat stapvoets. De berijder heeft de teugels in zijn linkerhand en de goudkleurige trompet in de rechterhand. Het mondstuk staat aan de mond. Het beeldje is als volgt geverfd: blauwe wapenrok met rode epauletten, zilverkleurige kuras, witte broek, zwarte laarzen, goudkleurige helm met zwarte paardenstaart. Gewapend met sabel. Het paard is wit met een lange staart en heeft een zwart tuig en een blauw dekkleed met witte biezen. Trefwoorden: karakterspeelgoed, speelgoed, ontspanningsmiddel Vervaardiger: Allgeyer Plaats vervaardiging: Duitsland, Fürth Datering: 1860 - 1880 Technieken: gegoten, beschilderd Materiaal: metaal, tin, lood, verf Afmetingen: (cm) hg 4,1 / br 3,2 / dp 0,9 Associatie: tinnen soldaatje, afgietsel, figuur, figuurvoorstelling, , cavalerie, kurassier, leger, oorlog, Napoleon I, 1812-1815, militaria, spelen, communicatie, bevel, muziek Vorm & decoratie: soldaat, kurassier, trompettist, wapenrok, epaulet, kuras, helm, paardenstaart, pluim, sabel, paard, dier, trompet, musicus Inventarisnr: Museum Rotterdam 90005")
     )
   })

@@ -39,6 +39,7 @@ export interface ExtMetadata {
 }
 
 export interface ImageInfo {
+  filename: string,
   size: number,
   width: number,
   height: number,

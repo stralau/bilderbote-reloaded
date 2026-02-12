@@ -27,20 +27,25 @@ export class WikimediaService {
 
     const imagePromise = this.wikimedia.fetchImage(imageInfo.url);
     return {
-      description: await this.getDescription(imageInfo.extmetadata),
+      description: await this.getDescription(imageInfo),
       image: await imagePromise,
       attribution: await attribution(imageInfo)
     } as WikimediaObject
 
   }
 
-  fetchInfo = async (location?: string | undefined) => {
-    const file = location ?? (await this.wikimedia.fetchRandomFileLocation());
+  fetchInfo = async (location?: string | undefined): Promise<Result<ImageInfo>> => {
+    const filename = this.fileName(location ?? (await this.wikimedia.fetchRandomFileLocation()));
 
-    const imageInfoResponse = await this.wikimedia.fetchImageInfo(file);
+    const imageInfoResponse = await this.wikimedia.fetchImageInfo(filename);
     console.log("imageInfoResponse", JSON.stringify(imageInfoResponse, null, 2))
-    return this.validate(imageInfoResponse)
+    return (await this.validate(imageInfoResponse)).map(imageInfo => ({...imageInfo, filename}))
   }
+
+  private fileName = (location: string): string => location
+    .split("/")
+    .pop()
+    .replace(/^File:/, "");
 
   validate = async (response: ImageInfoResponse): Promise<Result<ImageInfo>> => {
 
@@ -69,10 +74,10 @@ export class WikimediaService {
     ).map(mt => imageInfo)
   }
 
-  getDescription = async (extMetadata: ExtMetadata): Promise<string> => {
+  getDescription = async (imageInfo: ImageInfo): Promise<string> => {
 
-    const description = extMetadata.ImageDescription?.value ?? extMetadata.ObjectName?.value;
-    return sanitiseText(description);
+    const description = imageInfo.extmetadata.ImageDescription?.value ?? imageInfo.extmetadata.ObjectName?.value;
+    return description ? sanitiseText(description) : imageInfo.filename;
 
   }
 }
