@@ -31,38 +31,34 @@ export class MastodonImageClient implements PostImageClient {
 
     console.log("Posting image...")
 
-    try {
-      // Retry image upload
-      const status = await retry({
-        attempts: 3,
-        fn: () => Result.tryAsync(async () => {
-          // I couldn’t get an authoritative source, but some large images failed to post.
-          // Perplexity states these limits: 16MB file size, 8,388,608 pixels.
-          const scaled = await downScale(image.image, 16 * 1024 * 1024, this.scaleDimensions)
-          const media = await this.mastodon.postMediaAttachment(
-            {
-              file: new File([scaled], "image.jpeg", {type: scaled.type}),
-              description: image.description.slice(0, 1500),
-            },
-            true
-          )
+    // Retry image upload
+    const status = await retry({
+      attempts: 3,
+      fn: () => Result.tryAsync(async () => {
+        // I couldn't get an authoritative source, but some large images failed to post.
+        // Perplexity states these limits: 16MB file size, 8,388,608 pixels.
+        const scaled = await downScale(image.image, 16 * 1024 * 1024, this.scaleDimensions)
+        const media = await this.mastodon.postMediaAttachment(
+          {
+            file: new File([scaled], "image.jpeg", {type: scaled.type}),
+            description: image.description.slice(0, 1500),
+          },
+          true
+        )
 
-          console.log(media.json)
+        console.log(media.json)
 
-          return await this.mastodon.postStatus({
-            status: image.description.slice(0, 500),
-            media_ids: [media.json.id],
-          })
+        return await this.mastodon.postStatus({
+          status: image.description.slice(0, 500),
+          media_ids: [media.json.id],
         })
       })
+    })
 
-      await retry({
-        attempts: 3,
-        fn: () => this.attributionClient.postAttribution(image.attribution, status.get().json.id),
-      })
-    } catch (e) {
-      console.log(e)
-    }
+    await retry({
+      attempts: 3,
+      fn: () => this.attributionClient.postAttribution(image.attribution, status.get().json.id),
+    })
   }
 
   private async scaleDimensions(image: Buffer, md: Metadata): Promise<{image: Buffer, scaled: boolean}> {

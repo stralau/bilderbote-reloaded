@@ -42,10 +42,15 @@ export const handler = async (event: {location?: string | undefined}) => {
 
   console.log("image fetched", JSON.stringify(image, null, 2))
 
-  await Promise.all([
+  const results = await Promise.allSettled([
     bluesky.post(image),
-    mastodon.post(image)]
-  )
+    mastodon.post(image)
+  ])
+
+  const errors = results.filter(r => r.status === 'rejected').map(r => r.reason)
+  if (errors.length > 0) {
+    throw new AggregateError(errors, "Failed to post to: " + errors.map(e => e.message).join(", "))
+  }
 
   return {
     statusCode: 200,
