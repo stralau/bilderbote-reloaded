@@ -12,6 +12,8 @@ export async function downScale(original: Blob, maxSizeBytes: number, scaleDimen
   async function shrink(image: Buffer, quality: number, counter: number): Promise<{ image: Buffer, counter: number }> {
     if (image.byteLength <= maxSizeBytes) return {image: image, counter: counter}
 
+    if (quality < 5) throw new Error(`Image still too large (${image.byteLength} bytes) after reducing quality to minimum`)
+
     console.log(`Image is too large: ${image.byteLength} bytes`)
 
     return shrink(await sharp(image).jpeg({quality: quality, mozjpeg: true}).toBuffer(), quality - 5, counter + 1)
