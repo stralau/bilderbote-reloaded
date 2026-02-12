@@ -51,11 +51,9 @@ export interface ImageInfo {
 
 export interface ImageInfoResponse {
   query: {
-    pages: [
-      {
-        imageinfo: [ImageInfo]
-      }
-    ]
+    pages: {
+      imageinfo: ImageInfo[]
+    }[]
   }
 }
 
