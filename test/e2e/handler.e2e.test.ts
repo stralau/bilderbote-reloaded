@@ -49,4 +49,7 @@ test('posts an image successfully', async () => {
   const mastodonText = sanitiseText(mastodonAfter.content)
   const blueskyText = (blueskyAfter.post.record as any).text
   expect(mastodonText.slice(0, 300)).toBe(blueskyText)
+
+  expect(mastodonAfter.media_attachments.length).toBe(1)
+  expect((blueskyAfter.post.record as any).embed.images.length).toBe(1)
 }, 30_000)
