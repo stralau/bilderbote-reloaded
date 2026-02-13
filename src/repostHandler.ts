@@ -21,9 +21,14 @@ export const repostHandler = async () => {
     imageAccountID: process.env.MASTODON_IMAGE_ACCOUNT,
   })
 
-  const message = await Promise.all([mastodon.repost(), bluesky.repost()])
-    .catch(e => [`Failed to repost: ${JSON.stringify(e, null, 2)}`])
-    .then(messages => messages.join(', '))
+  const results = await Promise.allSettled([mastodon.repost(), bluesky.repost()])
+
+  const errors = results.filter(r => r.status === 'rejected').map(r => r.reason)
+  if (errors.length > 0) {
+    throw new AggregateError(errors, "Failed to repost: " + errors.map(e => e.message).join(", "))
+  }
+
+  const message = results.map(r => (r as PromiseFulfilledResult<string>).value).join(', ')
 
   return {
     statusCode: 200,
