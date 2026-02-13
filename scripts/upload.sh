@@ -9,6 +9,14 @@ fi
 rm -rf remote/lambda.zip dist/ node_modules/
 
 npm install && npm run build
+
+cat > dist/version.json <<EOF
+{
+  "sha": "$(git rev-parse --short HEAD)",
+  "message": "$(git log -1 --format=%s)"
+}
+EOF
+
 zip -r remote/lambda.zip dist node_modules package.json package-lock.json
 
 aws s3 cp remote/lambda.zip s3://lambda-post-images-artifacts/post-images-reloaded/lambda.zip

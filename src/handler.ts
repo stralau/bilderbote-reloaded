@@ -6,10 +6,12 @@ import {MastodonAttributionClient, MastodonImageClient} from "./mastodon/client.
 import {HttpClient} from "./net/httpClient.js";
 import {AttributionClient} from "./bluesky/attributionClient.js";
 import {BlueskyImage} from "./bluesky/imageClient.js";
+import {version} from "./version.js";
 
 export const handler = async (event: {location?: string | undefined}) => {
 
   dotenv.config();
+  console.log(`Version: ${version}`);
 
   const httpClient = new HttpClient({userAgent: process.env.USER_AGENT});
   const wikimediaClient = new WikimediaClient(httpClient);

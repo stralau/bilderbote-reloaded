@@ -2,10 +2,12 @@ import * as process from 'process';
 import {BlueskyRepost} from "./bluesky/repostClient.js";
 import * as dotenv from 'dotenv';
 import {MastodonRepostClient} from "./mastodon/client.js";
+import {version} from "./version.js";
 
 export const repostHandler = async () => {
 
   dotenv.config();
+  console.log(`Version: ${version}`);
 
   const bluesky = new BlueskyRepost({
     username: process.env.BLUESKY_REPOST_USERNAME,
