@@ -74,6 +74,6 @@ export class AttributionEntries {
 
 const encoder = new TextEncoder()
 
-function utf8Length(str: string): number {
+export function utf8Length(str: string): number {
   return encoder.encode(str).length
 }

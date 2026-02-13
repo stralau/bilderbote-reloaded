@@ -1,4 +1,4 @@
-import {AttributionEntries, AttributionEntry} from "../util/attributionEntries.js";
+import {AttributionEntries, AttributionEntry, utf8Length} from "../util/attributionEntries.js";
 import {Attribution} from "../types/types.js";
 
 type linkFacet = {
@@ -38,10 +38,4 @@ export class BlueskyAttributionEntries {
           uri: e.link
         }]
       }] : []);
-}
-
-const encoder = new TextEncoder()
-
-function utf8Length(str: string): number {
-  return encoder.encode(str).length
 }
