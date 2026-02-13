@@ -52,4 +52,16 @@ test('posts an image successfully', async () => {
 
   expect(mastodonAfter.media_attachments.length).toBe(1)
   expect((blueskyAfter.post.record as any).embed.images.length).toBe(1)
+
+  const mastodonReplies = await mastodon.get(`statuses/${mastodonAfter.id}/context`)
+    .then(r => (r.json as any).descendants)
+  expect(mastodonReplies.length).toBeGreaterThanOrEqual(1)
+  const mastodonAttribution = sanitiseText(mastodonReplies[0].content)
+  expect(mastodonAttribution).toContain("Source:")
+
+  const blueskyThread = await bluesky.getPostThread({uri: blueskyAfter.post.uri})
+  const blueskyReplies = (blueskyThread.data.thread as any).replies
+  expect(blueskyReplies.length).toBeGreaterThanOrEqual(1)
+  const blueskyAttribution = blueskyReplies[0].post.record.text
+  expect(blueskyAttribution).toContain("Source:")
 }, 30_000)
