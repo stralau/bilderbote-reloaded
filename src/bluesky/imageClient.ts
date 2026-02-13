@@ -2,7 +2,7 @@ import {PostImageClient} from "../types/socialMediaClients.js";
 import {AtpAgent} from "@atproto/api";
 import {WikimediaObject} from "../types/types.js";
 import {AttributionClient} from "./attributionClient.js";
-import sharp, {Metadata, Sharp} from "sharp";
+import sharp, {Metadata} from "sharp";
 import {retry} from "../util/Retry.js";
 import {Result} from "../util/Result.js";
 import {downScale} from "../util/image.js";
