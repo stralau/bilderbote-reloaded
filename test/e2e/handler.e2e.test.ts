@@ -1,4 +1,5 @@
 import {handler} from "../../src/handler.js";
+import {repostHandler} from "../../src/repostHandler.js";
 import * as dotenv from "dotenv";
 import * as Mastodon from "tsl-mastodon-api";
 import {AtpAgent} from "@atproto/api";
@@ -64,4 +65,10 @@ test('posts an image successfully', async () => {
   expect(blueskyReplies.length).toBeGreaterThanOrEqual(1)
   const blueskyAttribution = blueskyReplies[0].post.record.text
   expect(blueskyAttribution).toContain("Source:")
+}, 30_000)
+
+test('reposts successfully', async () => {
+  const result = await repostHandler()
+
+  expect(result.statusCode).toBe(200)
 }, 30_000)
