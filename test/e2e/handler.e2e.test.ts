@@ -2,6 +2,7 @@ import {handler} from "../../src/handler.js";
 import * as dotenv from "dotenv";
 import * as Mastodon from "tsl-mastodon-api";
 import {AtpAgent} from "@atproto/api";
+import {sanitiseText} from "../../src/util/text.js";
 
 dotenv.config();
 
@@ -44,4 +45,8 @@ test('posts an image successfully', async () => {
 
   const blueskyAfter = await getLatestBlueskyPost()
   expect(blueskyAfter.post.cid).not.toBe(blueskyBefore.post.cid)
+
+  const mastodonText = sanitiseText(mastodonAfter.content)
+  const blueskyText = (blueskyAfter.post.record as any).text
+  expect(mastodonText.slice(0, 300)).toBe(blueskyText)
 }, 30_000)
