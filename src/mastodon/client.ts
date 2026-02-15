@@ -7,6 +7,7 @@ import {retry} from "../util/Retry.js";
 import {Result} from "../util/Result.js";
 import * as JSON from "tsl-mastodon-api/lib/JSON/index.js";
 import API from "tsl-mastodon-api/lib/API.js";
+import {Status, StatusSchedule} from "tsl-mastodon-api/lib/JSON/index.js";
 
 export class MastodonImageClient implements PostImageClient {
 
@@ -32,7 +33,7 @@ export class MastodonImageClient implements PostImageClient {
     // Retry image upload
     const status = await retry({
       attempts: 3,
-      fn: () => Result.tryAsync(async () => {
+      fn: async () => {
         const media = await this.mastodon.postMediaAttachment(
           {
             file: new File([image], "image.jpeg", {type: image.type}),
@@ -47,7 +48,7 @@ export class MastodonImageClient implements PostImageClient {
           status: metadata.description.slice(0, 500),
           media_ids: [media.json.id],
         })
-      })
+      }
     })
 
     await retry({
@@ -62,28 +63,24 @@ export class MastodonAttributionClient {
   constructor(private readonly config: { accessToken: string }) {
   }
 
-  async postAttribution(attr: Attribution, originalPostId: string): Promise<Result<API.Success<(JSON.Status | JSON.StatusSchedule)>>> {
+  async postAttribution(attr: Attribution, originalPostId: string): Promise<API.Success<Status | StatusSchedule>> {
 
-    return Result.tryAsync(async () => {
-      console.log("Logging in...")
+    console.log("Logging in...")
 
-      const mastodon = new Mastodon.API({
-        access_token: this.config.accessToken,
-        api_url: "https://mastodon.social/api/v1/"
-      })
+    const mastodon = new Mastodon.API({
+      access_token: this.config.accessToken,
+      api_url: "https://mastodon.social/api/v1/"
+    })
 
-      console.log("Posting attribution...")
+    console.log("Posting attribution...")
 
-      const attribution = new AttributionEntries(attr, 500)
+    const attribution = new AttributionEntries(attr, 500)
 
-      return await mastodon.postStatus({
-        status: attribution.attributionText(),
-        in_reply_to_id: originalPostId
-      })
+    return await mastodon.postStatus({
+      status: attribution.attributionText(),
+      in_reply_to_id: originalPostId
     })
   }
-
-
 }
 
 export class MastodonRepostClient implements RepostClient {

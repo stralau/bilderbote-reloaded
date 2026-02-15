@@ -25,25 +25,25 @@ export class BlueskyImage implements PostImageClient {
   async post(image: Blob, metadata: Metadata): Promise<void> {
     const result = await retry({
       attempts: 3,
-      fn: () => Result.tryAsync(async () => {
+      fn: async () => {
         console.log("Logging in...")
         await this.agent.login({identifier: this.config.username, password: this.config.password})
         console.log(`Posting image: ${metadata.attribution.url}...`)
         const {uri, cid} = await this.postImage(image, metadata);
         console.log("Just posted! URI: ", uri, " CID: ", cid);
         return {uri, cid}
-      })
+      }
     })
 
     const {uri, cid} = result.get()
 
     await retry({
       attempts: 3,
-      fn: () => Result.tryAsync(async () => {
+      fn: async () => {
         console.log(`Posting attribution for ${metadata.attribution.url}...`)
         await this.attributionClient.post(metadata.attribution, cid, uri)
         console.log("Done!")
-      })
+      }
     })
   }
 

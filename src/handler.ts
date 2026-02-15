@@ -47,12 +47,12 @@ export const handler = async (event: { location?: string | undefined }) => {
 
   const {metadata, mastodon, bluesky} = (await retry({
     attempts: 10,
-    fn: () => Result.tryAsync(async () => {
+    fn: async () => {
       const object = await wikimedia.fetchWikimediaObject(event.location)
       const mastodonImage = mastodonImageScaler.scale(object.image)
       const blueskyImage = blueskyImageScaler.scale(object.image)
       return {metadata: object.metadata, mastodon: mastodonImage, bluesky: blueskyImage}
-    }),
+    },
     isFatal: (e: any) => e instanceof HttpStatusError && e.status == 429,
   })).get()
 
