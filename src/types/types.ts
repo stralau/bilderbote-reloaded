@@ -7,10 +7,16 @@ export interface Attribution {
 }
 
 export interface WikimediaObject {
+  metadata: Metadata
+  image: Blob
+}
+
+export interface Metadata {
   description: string
   image: Blob
   attribution: Attribution
 }
+
 export interface ExtMetadata {
   Artist: {
     value: string

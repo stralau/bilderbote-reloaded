@@ -1,5 +1,5 @@
 import {PostImageClient, RepostClient} from "../types/socialMediaClients.js";
-import {Attribution, WikimediaObject} from "../types/types.js";
+import {Attribution, Metadata} from "../types/types.js";
 import * as Mastodon from 'tsl-mastodon-api';
 import {randomElement} from "../util/util.js";
 import {AttributionEntries} from "../util/attributionEntries.js";
@@ -7,8 +7,6 @@ import {retry} from "../util/Retry.js";
 import {Result} from "../util/Result.js";
 import * as JSON from "tsl-mastodon-api/lib/JSON/index.js";
 import API from "tsl-mastodon-api/lib/API.js";
-import {downScale} from "../util/image.js";
-import sharp, {Metadata} from "sharp";
 
 export class MastodonImageClient implements PostImageClient {
 
@@ -27,7 +25,7 @@ export class MastodonImageClient implements PostImageClient {
 
   }
 
-  async post(image: WikimediaObject): Promise<void> {
+  async post(image: Blob, metadata: Metadata): Promise<void> {
 
     console.log("Posting image...")
 
@@ -35,13 +33,10 @@ export class MastodonImageClient implements PostImageClient {
     const status = await retry({
       attempts: 3,
       fn: () => Result.tryAsync(async () => {
-        // I couldn't get an authoritative source, but some large images failed to post.
-        // Perplexity states these limits: 16MB file size, 8,388,608 pixels.
-        const scaled = await downScale(image.image, 16 * 1024 * 1024, this.scaleDimensions)
         const media = await this.mastodon.postMediaAttachment(
           {
-            file: new File([scaled], "image.jpeg", {type: scaled.type}),
-            description: image.description.slice(0, 1500),
+            file: new File([image], "image.jpeg", {type: image.type}),
+            description: metadata.description.slice(0, 1500),
           },
           true
         )
@@ -49,7 +44,7 @@ export class MastodonImageClient implements PostImageClient {
         console.log(media.json)
 
         return await this.mastodon.postStatus({
-          status: image.description.slice(0, 500),
+          status: metadata.description.slice(0, 500),
           media_ids: [media.json.id],
         })
       })
@@ -57,29 +52,8 @@ export class MastodonImageClient implements PostImageClient {
 
     await retry({
       attempts: 3,
-      fn: () => this.attributionClient.postAttribution(image.attribution, status.get().json.id),
+      fn: () => this.attributionClient.postAttribution(metadata.attribution, status.get().json.id),
     })
-  }
-
-  private async scaleDimensions(image: Buffer, md: Metadata): Promise<{image: Buffer, scaled: boolean}> {
-    if (md.width * md.height <= 8_388_608) {
-      return {image, scaled: false}
-    }
-
-    const ratio = Math.sqrt(8_388_608 / (md.width * md.height))
-    const width = Math.floor(md.width * ratio);
-
-    console.log(`Image is too large: ${md.width}x${md.height}, ${image.byteLength} bytes. Resizing to width ${width}.`)
-
-    image = await sharp(image)
-      .resize({width: width, fit: 'inside', withoutEnlargement: true})
-      .jpeg({quality: 90, mozjpeg: true})
-      .toBuffer()
-
-    md = await sharp(image).metadata()
-    console.log(`Resized to ${md.width}x${md.height}, ${image.byteLength} bytes.`)
-
-    return {image, scaled: true}
   }
 
 }

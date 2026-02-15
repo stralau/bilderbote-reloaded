@@ -13,11 +13,12 @@ test('Fetches image', async () => {
   const image = await service.fetchWikimediaObject()
 
   expect(image).toBeDefined()
-  expect(image.description).toBe("View of Earth taken during ISS Expedition 39.")
-  expect(image.attribution.author).toBe("Earth Science and Remote Sensing Unit, Lyndon B. Johnson Space Center")
-  expect(image.attribution.date).toBe("21 April 2014")
-  expect(image.attribution.licence).toBe("Public domain")
-  expect(image.attribution.url).toBe("https://commons.wikimedia.org/wiki/File:ISS039-E-14528_-_View_of_Earth.jpg")
+  const metadata = image.metadata
+  expect(metadata.description).toBe("View of Earth taken during ISS Expedition 39.")
+  expect(metadata.attribution.author).toBe("Earth Science and Remote Sensing Unit, Lyndon B. Johnson Space Center")
+  expect(metadata.attribution.date).toBe("21 April 2014")
+  expect(metadata.attribution.licence).toBe("Public domain")
+  expect(metadata.attribution.url).toBe("https://commons.wikimedia.org/wiki/File:ISS039-E-14528_-_View_of_Earth.jpg")
 })
 
 test('Take file title if no description', async () => {

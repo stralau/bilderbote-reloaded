@@ -17,19 +17,17 @@ export class WikimediaService {
 
   public fetchWikimediaObject = async (location?: string | undefined): Promise<WikimediaObject> => {
 
-    const imageInfoResult = await retry({
-      attempts: 10,
-      fn: () => this.fetchInfo(location),
-      isFatal: e => e instanceof HttpStatusError && e.status == 429,
-    });
+    const imageInfoResult = await this.fetchInfo(location)
 
     const imageInfo = imageInfoResult.get()
 
     const imagePromise = this.wikimedia.fetchImage(imageInfo.url);
     return {
-      description: await this.getDescription(imageInfo),
+      metadata: {
+        description: await this.getDescription(imageInfo),
+        attribution: await attribution(imageInfo)
+      },
       image: await imagePromise,
-      attribution: await attribution(imageInfo)
     } as WikimediaObject
 
   }

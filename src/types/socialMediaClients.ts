@@ -1,7 +1,7 @@
-import {WikimediaObject} from "../types/types.js";
+import {Metadata, WikimediaObject} from "../types/types.js";
 
 export interface PostImageClient {
-  post(image: WikimediaObject): Promise<void>
+  post(image: Blob, metadata: Metadata): Promise<void>
 }
 
 export interface RepostClient {
