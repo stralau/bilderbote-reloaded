@@ -5,6 +5,7 @@ const config: Config = {
   testEnvironment: 'node',
   verbose: true,
   testMatch: ['**/?(*.)+(spec|test).ts?(x)'],
+  testPathIgnorePatterns: ['/node_modules/', '/test/e2e/'],
   moduleFileExtensions: ['ts', 'js'],
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   extensionsToTreatAsEsm: ['.ts'],
