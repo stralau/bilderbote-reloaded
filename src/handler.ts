@@ -8,7 +8,6 @@ import {AttributionClient} from "./bluesky/attributionClient.js";
 import {BlueskyImage} from "./bluesky/imageClient.js";
 import {version} from "./version.js";
 import {retry} from "./util/Retry.js";
-import {Result} from "./util/Result.js";
 import {HttpStatusError} from "./types/types.js";
 import {blueskyImageScaler, mastodonImageScaler} from "./util/image.js";
 
@@ -49,8 +48,12 @@ export const handler = async (event: { location?: string | undefined }) => {
     attempts: 10,
     fn: async () => {
       const object = await wikimedia.fetchWikimediaObject(event.location)
-      const mastodonImage = mastodonImageScaler.scale(object.image)
-      const blueskyImage = blueskyImageScaler.scale(object.image)
+
+      const [mastodonImage, blueskyImage] = await Promise.all([
+        mastodonImageScaler.scale(object.image),
+        blueskyImageScaler.scale(object.image)
+      ])
+
       return {metadata: object.metadata, mastodon: mastodonImage, bluesky: blueskyImage}
     },
     isFatal: (e: any) => e instanceof HttpStatusError && e.status == 429,
@@ -59,8 +62,8 @@ export const handler = async (event: { location?: string | undefined }) => {
   console.log("image fetched", JSON.stringify(metadata, null, 2))
 
   const results = await Promise.allSettled([
-    blueskyClient.post(await bluesky, metadata),
-    mastodonClient.post(await mastodon, metadata),
+    blueskyClient.post(bluesky, metadata),
+    mastodonClient.post(mastodon, metadata),
   ])
 
   const errors = results.filter(r => r.status === 'rejected').map(r => r.reason)
