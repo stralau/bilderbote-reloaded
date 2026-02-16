@@ -15,7 +15,7 @@ export async function retry<T>(r: Retry<T>): Promise<Result<T>> {
 
   const result: Result<T> = await Result.tryAsync(r.fn);
   if (r.attempts == 1) {
-    return result.mapError(e => new Error(`Failed with error: ${e.message}`))
+    return result
   }
 
   if (result.r.success === true || r.isFatal && r.isFatal(result.r.error)) return result

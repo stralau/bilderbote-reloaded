@@ -55,7 +55,6 @@ export class Result<T, E = Error> {
 
   get(): T {
     if (this.r.success === false) {
-      console.error(this.r.error)
       throw this.r.error
     }
     return this.r.value
