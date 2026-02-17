@@ -69,7 +69,7 @@ export class HttpStatusError extends Error {
   }
 }
 
-type Option<T> = T | null
+export type Option<T> = T | null
 
 export function optional<T>(value: T | null | undefined): Option<T> {
   return value === null || value === undefined ? null : value
@@ -86,4 +86,8 @@ export function get<T>(o: Option<T>): T {
 
 export function map<T, U>(o: Option<T>, f: (t: T) => U): Option<U> {
   return o === null ? null : f(o)
+}
+
+export function toArray<T>(o: Option<T>): T[] {
+  return o === null ? [] : [o]
 }

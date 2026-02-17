@@ -1,0 +1,102 @@
+{
+  "batchcomplete": true,
+  "query": {
+    "normalized": [
+      {
+        "fromencoded": false,
+        "from": "File:AS17-162-24044_-_Apollo_17_-_DPLA_-_f0828d148153635b2a3e99c9abe8adf9.jpg",
+        "to": "File:AS17-162-24044 - Apollo 17 - DPLA - f0828d148153635b2a3e99c9abe8adf9.jpg"
+      }
+    ],
+    "pages": [
+      {
+        "pageid": 97006735,
+        "ns": 6,
+        "title": "File:AS17-162-24044 - Apollo 17 - DPLA - f0828d148153635b2a3e99c9abe8adf9.jpg",
+        "imagerepository": "local",
+        "imageinfo": [
+          {
+            "size": 490461,
+            "width": 3070,
+            "height": 2044,
+            "url": "https://upload.wikimedia.org/wikipedia/commons/b/bb/AS17-162-24044_-_Apollo_17_-_DPLA_-_f0828d148153635b2a3e99c9abe8adf9.jpg",
+            "descriptionurl": "https://commons.wikimedia.org/wiki/File:AS17-162-24044_-_Apollo_17_-_DPLA_-_f0828d148153635b2a3e99c9abe8adf9.jpg",
+            "descriptionshorturl": "https://commons.wikimedia.org/w/index.php?curid=97006735",
+            "extmetadata": {
+              "DateTime": {
+                "value": "2020-11-27 02:55:10",
+                "source": "mediawiki-metadata",
+                "hidden": ""
+              },
+              "CommonsMetadataExtension": {
+                "value": 1.2,
+                "source": "extension",
+                "hidden": ""
+              },
+              "Categories": {
+                "value": "PD US|Files with no machine-readable author|Media contributed by the National Archives and Records Administration|Media contributed by the Digital Public Library of America|Artworks without Wikidata item|Media contributed by National Archives at College Park - Still Pictures|Files from NASA with known IDs|Astronaut photography during Apollo 17|US National Archives series: Mission Photographs Taken During the Space Shuttle Program , 4/12/1981 - 7/21/2011|US National Archives File Unit: Apollo 17 - AS17-0447 through AS17M-0545",
+                "source": "commons-categories",
+                "hidden": ""
+              },
+              "Assessments": {
+                "value": "",
+                "source": "commons-categories",
+                "hidden": ""
+              },
+              "Artist": {
+                "value": "National Aeronautics and Space Administration. Lyndon B. Johnson Space Center. 2/17/1973",
+                "source": "commons-desc-page"
+              },
+              "ImageDescription": {
+                "value": "<div class=\"description\">\nThe original database describes this as: Original: Film</div>",
+                "source": "commons-desc-page"
+              },
+              "DateTimeOriginal": {
+                "value": "between 7 December 1972 and 19 December 1972<div style=\"display: none;\">date QS:P571,+1972-12-00T00:00:00Z/10,P1319,+1972-12-07T00:00:00Z/11,P1326,+1972-12-19T00:00:00Z/11</div>",
+                "source": "commons-desc-page"
+              },
+              "Credit": {
+                "value": "This file was contributed to Wikimedia Commons by <a href=\"https://en.wikipedia.org/wiki/en:National_Archives_and_Records_Administration\" class=\"extiw\" title=\"w:en:National Archives and Records Administration\"><span title=\"United States government agency\">National Archives and Records Administration</span></a> as part of a cooperation project. The donation was facilitated by the <a href=\"https://en.wikipedia.org/wiki/Digital_Public_Library_of_America\" class=\"extiw\" title=\"w:Digital Public Library of America\">Digital Public Library of America</a>, via its partner <a href=\"https://en.wikipedia.org/wiki/en:Digital_Public_Library_of_America\" class=\"extiw\" title=\"w:en:Digital Public Library of America\"><span title=\"American library project\">Digital Public Library of America</span></a>.<span style=\"text-align:left\">\n<ul><li><a rel=\"nofollow\" class=\"external text\" href=\"https://catalog.archives.gov/id/16730339\">Record in source catalog</a></li>\n<li>DPLA identifier: <a rel=\"nofollow\" class=\"external text\" href=\"https://dp.la/item/f0828d148153635b2a3e99c9abe8adf9\">f0828d148153635b2a3e99c9abe8adf9</a></li>\n<li>National Archives Identifier: 16730339</li></ul>\n</span>",
+                "source": "commons-desc-page"
+              },
+              "Permission": {
+                "value": "This image might not be in the public domain outside of the United States; this especially applies in the countries and areas that do not apply the <a href=\"https://en.wikipedia.org/wiki/rule_of_the_shorter_term\" class=\"extiw\" title=\"w:rule of the shorter term\">rule of the shorter term</a> for US works, such as Canada, Mainland China (not Hong Kong or Macao), Germany, Mexico, and Switzerland. The creator and year of publication are essential information and must be provided. See <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Public_domain\" class=\"extiw\" title=\"w:Wikipedia:Public domain\">Wikipedia:Public domain</a> and <a href=\"https://en.wikipedia.org/wiki/Wikipedia:Copyrights\" class=\"extiw\" title=\"w:Wikipedia:Copyrights\">Wikipedia:Copyrights</a> for more details.",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "LicenseShortName": {
+                "value": "Public domain",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "UsageTerms": {
+                "value": "Public domain",
+                "source": "commons-desc-page"
+              },
+              "AttributionRequired": {
+                "value": "false",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "Copyrighted": {
+                "value": "False",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "Restrictions": {
+                "value": "",
+                "source": "commons-desc-page",
+                "hidden": ""
+              },
+              "License": {
+                "value": "pd",
+                "source": "commons-templates",
+                "hidden": ""
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

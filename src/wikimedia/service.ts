@@ -1,7 +1,16 @@
 import {ContentType, contentTypeFrom, matchesContentType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
 import {retry} from "../util/Retry.js";
 import {Wikimedia} from "./client.js";
-import {HttpStatusError, ImageInfo, ImageInfoResponse, WikimediaObject} from "../types/types.js";
+import {
+  HttpStatusError,
+  ImageInfo,
+  ImageInfoResponse,
+  map,
+  Option,
+  optional,
+  toArray,
+  WikimediaObject
+} from "../types/types.js";
 import {Result} from "../util/Result.js";
 import {attribution} from "./attribution.js";
 import {sanitiseText} from "../util/text.js";
@@ -74,8 +83,9 @@ export class WikimediaService {
 
   getDescription = async (imageInfo: ImageInfo): Promise<string> => {
 
-    const description = imageInfo.extmetadata.ImageDescription?.value ?? imageInfo.extmetadata.ObjectName?.value;
-    return description ? sanitiseText(description) : imageInfo.filename;
+    const title: Option<string> = map(optional(imageInfo.extmetadata.ObjectName?.value), sanitiseText);
+    const description: Option<string> = map(optional(imageInfo.extmetadata.ImageDescription?.value), sanitiseText);
 
+    return (title || description) ? [title, description].map(toArray).flat().join(" – ") : imageInfo.filename
   }
 }
