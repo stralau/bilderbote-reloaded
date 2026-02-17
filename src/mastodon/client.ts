@@ -8,6 +8,7 @@ import {Result} from "../util/Result.js";
 import * as JSON from "tsl-mastodon-api/lib/JSON/index.js";
 import API from "tsl-mastodon-api/lib/API.js";
 import {Status, StatusSchedule} from "tsl-mastodon-api/lib/JSON/index.js";
+import {MastodonAttributionEntries} from "./attribution.js";
 
 export class MastodonImageClient implements PostImageClient {
 
@@ -74,7 +75,7 @@ export class MastodonAttributionClient {
 
     console.log("Posting attribution...")
 
-    const attribution = new AttributionEntries(attr, 500)
+    const attribution = new MastodonAttributionEntries(attr)
 
     return await mastodon.postStatus({
       status: attribution.attributionText(),

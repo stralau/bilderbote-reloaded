@@ -16,12 +16,13 @@ export class AttributionEntry {
     public readonly offset: number,
     key: string,
     private readonly _value: string,
+    private getLength: (str: string) => number,
     maxLength?: number,
-    private readonly _link?: string
+    private readonly _link?: string,
   ) {
     const text = `${key}: ${_value}`;
-    this._attribution = maxLength ? text.slice(0, maxLength) : text
-    this._attributionLength = utf8Length(this._attribution)
+    this._attributionLength = getLength(text)
+    this._attribution = (maxLength && this._attributionLength > maxLength) ? text.slice(0, maxLength) : text
   }
 
   get attributionLength(): number {
@@ -37,9 +38,14 @@ export class AttributionEntry {
 export class AttributionEntries {
   private readonly _entries: AttributionEntry[]
 
-  constructor(attribution: Attribution, private readonly maxLength: number) {
+  constructor(attribution: Attribution, private readonly maxLength: number, private getLength: (str: string) => number = utf8Length) {
 
-    const entryMaxLength = (maxLength - 30) / 3
+    const urlLength = attribution.url ? getLength(attribution.url) : 0
+    const newLines = 3
+    const entryMaxLength = (maxLength - urlLength - newLines) / 3
+
+    if (entryMaxLength < 1) throw new Error("Attribution entries too long")
+
     const entries = [
       attribution.author ? {key: "Author", value: attribution.author, maxLength: entryMaxLength} : [],
       attribution.date ? {key: "Date", value: attribution.date, maxLength: entryMaxLength} : [],
@@ -54,7 +60,7 @@ export class AttributionEntries {
     this._entries = entries.reduce(
       (acc, {key, value, maxLength, link}) => {
         const offset = acc.length > 0 ? calculateNextOffset(acc.at(-1)) : 0;
-        const entry = new AttributionEntry(offset, key, value, maxLength, link);
+        const entry = new AttributionEntry(offset, key, value, getLength, maxLength, link);
         return [...acc, entry];
       },
       [] as AttributionEntry[]
@@ -64,7 +70,6 @@ export class AttributionEntries {
   attributionText(): string {
     return this._entries.map((e) => e.attribution)
       .join("\n")
-      .slice(0, this.maxLength)
   }
 
   get entries(): AttributionEntry[] {

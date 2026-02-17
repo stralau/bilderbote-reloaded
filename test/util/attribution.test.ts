@@ -1,6 +1,7 @@
 import {AttributionEntries} from "../../src/util/attributionEntries";
 import {expect} from "@jest/globals";
 import {parseDate} from "../../src/wikimedia/attribution";
+import {MastodonAttributionEntries} from "../../src/mastodon/attribution";
 
 
 test("Respects max length", () => {
@@ -10,11 +11,13 @@ test("Respects max length", () => {
     licence: "CC BY-SA 2.0",
     licenceUrl: "https://creativecommons.org/licenses/by-sa/2.0/",
     url: "https://commons.wikimedia.org/wiki/File:Mastiles_Gate_and_Lane_-_geograph.org.uk_-_2567679.jpg"
-  }, 30)
+  }, 150)
 
   expect(entries.attributionText()).toBe(
-    `Author: Tom Richardson
-Date: 2`
+`Author: Tom Richa
+Date: 2011-08-22
+Licence: CC BY-SA
+Source: https://commons.wikimedia.org/wiki/File:Mastiles_Gate_and_Lane_-_geograph.org.uk_-_2567679.jpg`
   )
 })
 
@@ -25,11 +28,12 @@ test("Works with null author", () => {
     licence: "CC BY-SA 2.0",
     licenceUrl: "https://creativecommons.org/licenses/by-sa/2.0/",
     url: "https://commons.wikimedia.org/wiki/File:Mastiles_Gate_and_Lane_-_geograph.org.uk_-_2567679.jpg"
-  }, 30)
+  }, 300)
 
   expect(entries.attributionText()).toBe(
-    `Date: 2011-08-22
-Licence: CC B`
+`Date: 2011-08-22
+Licence: CC BY-SA 2.0
+Source: https://commons.wikimedia.org/wiki/File:Mastiles_Gate_and_Lane_-_geograph.org.uk_-_2567679.jpg`
   )
 })
 
