@@ -12,29 +12,33 @@ class DefaultImageScaler implements ImageScaler {
     let type = image.type
     let buffer: Buffer = Buffer.from(await image.arrayBuffer())
 
-    let scaleResult = await this.scaleDimensions(buffer, await sharp(buffer).metadata())
+    let scaleResult: { buffer: Buffer; counter: number } = await this.scaleDimensions(buffer, await sharp(buffer).metadata())
     let counter = scaleResult.counter
 
     if(counter > 0) {
-      const md = await sharp(buffer).metadata()
-      console.log(`Resized to ${md.width}x${md.height}, ${buffer.byteLength} bytes.`)
+      const md = await sharp(scaleResult.buffer).metadata()
+      console.log(`Resized to ${md.width}x${md.height}, ${scaleResult.buffer.byteLength} bytes.`)
     }
 
     const {scaled, numScaled} = await scaleFileSize(scaleResult.buffer, 16 * 1024 * 1024)
     counter += numScaled
     if (counter > 0) {
-      console.log(`Scaled ${counter} time(s).`)
       type = 'image/jpeg'
+
+      console.log(`Scaled ${counter} time(s).`)
+      const md = await sharp(scaleResult.buffer).metadata()
+      console.log(`Resized to ${md.width}x${md.height}, ${scaleResult.buffer.byteLength} bytes.`)
     }
+
     return new Blob([new Uint8Array(scaled)], {type: type})
 
   }
 }
 
-export const mastodonImageScaler = new DefaultImageScaler(16 * 1024 * 1024, mastodonScaleFileSize)
-export const blueskyImageScaler = new DefaultImageScaler(976_560, blueskyScaleFileSize)
+export const mastodonImageScaler = new DefaultImageScaler(16 * 1024 * 1024, mastodonScaleDimensions)
+export const blueskyImageScaler = new DefaultImageScaler(976_560, blueskyScaleDimensions)
 
-async function mastodonScaleFileSize(buffer: Buffer, md: Metadata): Promise<{buffer: Buffer, counter: number}> {
+async function mastodonScaleDimensions(buffer: Buffer, md: Metadata): Promise<{buffer: Buffer, counter: number}> {
   let counter = 0
   if (md.width * md.height > 8_388_608) {
     const ratio = Math.sqrt(8_388_608 / (md.width * md.height))
@@ -52,7 +56,7 @@ async function mastodonScaleFileSize(buffer: Buffer, md: Metadata): Promise<{buf
   return {buffer: buffer, counter: counter}
 }
 
-async function blueskyScaleFileSize(buffer: Buffer, md: Metadata): Promise<{buffer: Buffer, counter: number}> {
+async function blueskyScaleDimensions(buffer: Buffer, md: Metadata): Promise<{buffer: Buffer, counter: number}> {
   let counter = 0
   if (md.width > 1000 || md.height > 1000) {
     console.log(`Image is too large: ${md.width}x${md.height}, ${buffer.byteLength} bytes. Resizing dimensions.`)
