@@ -14,14 +14,14 @@ class DefaultImageScaler implements ImageScaler {
 
   public async scale(image: Blob): Promise<Blob> {
     let type = image.type
-    const scaleResult: {
-      sharp: Sharp;
-      scaled: boolean
-    } = await this.scaleDimensions(sharp(Buffer.from(await image.arrayBuffer())), this.log)
+    const scaleResult: { sharp: Sharp; scaled: boolean } = await this.scaleDimensions(sharp(Buffer.from(await image.arrayBuffer())), this.log)
+
     let counter = scaleResult.scaled ? 1 : 0
 
     const {scaled, numScaled} = await scaleFileSize(scaleResult.sharp, this.fileSize, this.log)
+
     counter += numScaled
+
     const buffer: Buffer = await scaled.toBuffer();
 
     if (counter > 0) {

@@ -1,16 +1,6 @@
 import {ContentType, contentTypeFrom, matchesContentType} from "@ganbarodigital/ts-lib-mediatype/lib/v1/index.js"
-import {retry} from "../util/Retry.js";
 import {Wikimedia} from "./client.js";
-import {
-  HttpStatusError,
-  ImageInfo,
-  ImageInfoResponse,
-  map,
-  Option,
-  optional,
-  toArray,
-  WikimediaObject
-} from "../types/types.js";
+import {ImageInfo, ImageInfoResponse, map, Option, optional, toArray, WikimediaObject} from "../types/types.js";
 import {Result} from "../util/Result.js";
 import {attribution} from "./attribution.js";
 import {sanitiseText} from "../util/text.js";
@@ -69,9 +59,6 @@ export class WikimediaService {
     const imageInfo = infos[0]
 
     const size = imageInfo.size;
-    if (size > WikimediaService.maxSizeInBytes) {
-      return Result.err(Error("Image is too large: " + size + " bytes"))
-    }
 
     const mediaTypeResult = await this.wikimedia.fetchMediaType(imageInfo.url)
 
