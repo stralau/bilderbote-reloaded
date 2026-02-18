@@ -1,90 +1,92 @@
-import sharp, {Metadata} from "sharp";
+import sharp, {Sharp} from "sharp";
+import {Log} from "./log.js";
 
 export interface ImageScaler {
   scale(image: Blob): Promise<Blob>
 }
 
 class DefaultImageScaler implements ImageScaler {
-  constructor(private readonly fileSize: number, private readonly scaleDimensions: (buffer: Buffer, md: Metadata) => Promise<{buffer: Buffer, counter: number}>) {
+  constructor(private readonly fileSize: number, private readonly scaleDimensions: (sharp: Sharp, log: Log) => Promise<{
+    sharp: Sharp,
+    scaled: boolean
+  }>, private readonly log: Log) {
   }
 
   public async scale(image: Blob): Promise<Blob> {
     let type = image.type
-    let buffer: Buffer = Buffer.from(await image.arrayBuffer())
+    const scaleResult: {
+      sharp: Sharp;
+      scaled: boolean
+    } = await this.scaleDimensions(sharp(Buffer.from(await image.arrayBuffer())), this.log)
+    let counter = scaleResult.scaled ? 1 : 0
 
-    let scaleResult: { buffer: Buffer; counter: number } = await this.scaleDimensions(buffer, await sharp(buffer).metadata())
-    let counter = scaleResult.counter
-
-    if(counter > 0) {
-      const md = await sharp(scaleResult.buffer).metadata()
-      console.log(`Resized to ${md.width}x${md.height}, ${scaleResult.buffer.byteLength} bytes.`)
-    }
-
-    const {scaled, numScaled} = await scaleFileSize(scaleResult.buffer, 16 * 1024 * 1024)
+    const {scaled, numScaled} = await scaleFileSize(scaleResult.sharp, this.fileSize, this.log)
     counter += numScaled
+    const buffer: Buffer = await scaled.toBuffer();
+
     if (counter > 0) {
       type = 'image/jpeg'
 
-      console.log(`Scaled ${counter} time(s).`)
-      const md = await sharp(scaleResult.buffer).metadata()
-      console.log(`Resized to ${md.width}x${md.height}, ${scaleResult.buffer.byteLength} bytes.`)
+      // Metadata is only recalculated after calling toBuffer(), so we have to fetch it again here
+      const md = await sharp(buffer).metadata()
+
+      this.log.log(`Scaled ${counter} time(s). Resized to ${md.width}x${md.height}, ${md.size} bytes.`)
     }
 
-    return new Blob([new Uint8Array(scaled)], {type: type})
+    return new Blob([new Uint8Array(buffer)], {type: type})
 
   }
 }
 
-export const mastodonImageScaler = new DefaultImageScaler(16 * 1024 * 1024, mastodonScaleDimensions)
-export const blueskyImageScaler = new DefaultImageScaler(976_560, blueskyScaleDimensions)
+export const mastodonImageScaler = new DefaultImageScaler(16 * 1024 * 1024, mastodonScaleDimensions, new Log('Mastodon'))
+export const blueskyImageScaler = new DefaultImageScaler(976_560, blueskyScaleDimensions, new Log('Bluesky'))
 
-async function mastodonScaleDimensions(buffer: Buffer, md: Metadata): Promise<{buffer: Buffer, counter: number}> {
-  let counter = 0
-  if (md.width * md.height > 8_388_608) {
-    const ratio = Math.sqrt(8_388_608 / (md.width * md.height))
-    const width = Math.floor(md.width * ratio);
+async function mastodonScaleDimensions(sharp: Sharp, log: Log): Promise<{ sharp: Sharp, scaled: boolean }> {
+  const md = await sharp.metadata()
 
-    console.log(`Image is too large: ${md.width}x${md.height}, ${buffer.byteLength} bytes. Resizing to width ${width}.`)
+  if (md.width * md.height <= 8_388_608)
+    return {sharp: sharp, scaled: false}
 
-    buffer = await sharp(buffer)
-      .resize({width: width, fit: 'inside', withoutEnlargement: true})
-      .jpeg({quality: 90, mozjpeg: true})
-      .toBuffer()
+  const ratio = Math.sqrt(8_388_608 / (md.width * md.height))
+  const width = Math.floor(md.width * ratio);
 
-    counter++
-  }
-  return {buffer: buffer, counter: counter}
+  log.log(`Image is too large: ${md.width}x${md.height}, ${md.size} bytes. Resizing to width ${width}.`)
+
+  sharp = sharp
+    .resize({width: width, fit: 'inside', withoutEnlargement: true})
+    .jpeg({quality: 90, mozjpeg: true})
+
+  return {sharp: sharp, scaled: true}
 }
 
-async function blueskyScaleDimensions(buffer: Buffer, md: Metadata): Promise<{buffer: Buffer, counter: number}> {
-  let counter = 0
-  if (md.width > 1000 || md.height > 1000) {
-    console.log(`Image is too large: ${md.width}x${md.height}, ${buffer.byteLength} bytes. Resizing dimensions.`)
-    buffer = await sharp(buffer)
-      .resize(1000, 1000, {fit: 'inside', withoutEnlargement: true})
-      .jpeg({quality: 90, mozjpeg: true})
-      .toBuffer()
+async function blueskyScaleDimensions(sharp: Sharp, log: Log): Promise<{ sharp: Sharp, scaled: boolean }> {
+  const md = await sharp.metadata()
 
-    counter++
-  }
+  if (md.width <= 1000 && md.height <= 1000)
+    return {sharp: sharp, scaled: false}
 
-  return {buffer: buffer, counter: counter}
+  log.log(`Image is too large: ${md.width}x${md.height}, ${md.size} bytes. Resizing to width 1000.`)
+  sharp = sharp
+    .resize(1000, 1000, {fit: 'inside', withoutEnlargement: true})
+    .jpeg({quality: 90, mozjpeg: true})
+
+  return {sharp: sharp, scaled: true}
 }
 
-async function scaleFileSize(buffer: Buffer, maxSizeBytes: number): Promise<{scaled: Buffer, numScaled: number}> {
-  let counter = 0
+function scaleFileSize(sharp: Sharp, maxSizeBytes: number, log: Log): Promise<{ scaled: Sharp, numScaled: number }> {
+  return shrink(sharp, 90, maxSizeBytes, 0, log)
+}
 
-  async function shrink(image: Buffer, quality: number, counter: number): Promise<{ image: Buffer, numScaled: number }> {
-    if (image.byteLength <= maxSizeBytes) return {image: image, numScaled: counter}
+async function shrink(sharp: Sharp, quality: number, maxSizeBytes: number, numScaled: number, log: Log): Promise<{
+  scaled: Sharp,
+  numScaled: number
+}> {
+  const size = (await sharp.toBuffer()).byteLength
+  if (size <= maxSizeBytes) return {scaled: sharp, numScaled: numScaled}
 
-    if (quality < 5) throw new Error(`Image still too large (${image.byteLength} bytes) after reducing quality to minimum`)
+  if (quality < 5) throw new Error(`Image still too large (${size} bytes) after reducing quality to minimum`)
 
-    console.log(`Image is too large: ${image.byteLength} bytes`)
+  log.log(`Image is too large: ${size} bytes`)
 
-    return shrink(await sharp(image).jpeg({quality: quality, mozjpeg: true}).toBuffer(), quality - 5, counter + 1)
-  }
-
-  const result = await shrink(buffer, 90, counter)
-
-  return {scaled: result.image, numScaled: counter}
+  return shrink(sharp.jpeg({quality: quality, mozjpeg: true}), quality - 5, maxSizeBytes, numScaled + 1, log)
 }

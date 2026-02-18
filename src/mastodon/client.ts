@@ -2,23 +2,23 @@ import {PostImageClient, RepostClient} from "../types/socialMediaClients.js";
 import {Attribution, Metadata} from "../types/types.js";
 import * as Mastodon from 'tsl-mastodon-api';
 import {randomElement} from "../util/util.js";
-import {AttributionEntries} from "../util/attributionEntries.js";
 import {retry} from "../util/Retry.js";
-import {Result} from "../util/Result.js";
-import * as JSON from "tsl-mastodon-api/lib/JSON/index.js";
-import API from "tsl-mastodon-api/lib/API.js";
 import {Status, StatusSchedule} from "tsl-mastodon-api/lib/JSON/index.js";
+import API from "tsl-mastodon-api/lib/API.js";
 import {MastodonAttributionEntries} from "./attribution.js";
+import {Log} from "../util/log.js";
 
 export class MastodonImageClient implements PostImageClient {
 
   private readonly mastodon: Mastodon.API;
 
   constructor(private readonly config: {
-    instance_url: string,
-    accessToken: string,
-    userAgent: string
-  }, private readonly attributionClient: MastodonAttributionClient) {
+                instance_url: string,
+                accessToken: string,
+                userAgent: string
+              }, private readonly attributionClient: MastodonAttributionClient,
+              private readonly log: Log
+  ) {
     this.mastodon = new Mastodon.API({
       api_url: `${this.config.instance_url}/api/v1/`,
       access_token: this.config.accessToken,
@@ -29,7 +29,7 @@ export class MastodonImageClient implements PostImageClient {
 
   async post(image: Blob, metadata: Metadata): Promise<void> {
 
-    console.log("Posting image...")
+    this.log.log("Posting image...")
 
     // Retry image upload
     const status = await retry({
@@ -43,7 +43,7 @@ export class MastodonImageClient implements PostImageClient {
           true
         )
 
-        console.log(media.json)
+        this.log.log(media.json)
 
         return await this.mastodon.postStatus({
           status: metadata.description.slice(0, 500),
@@ -61,19 +61,19 @@ export class MastodonImageClient implements PostImageClient {
 }
 
 export class MastodonAttributionClient {
-  constructor(private readonly config: { accessToken: string }) {
+  constructor(private readonly config: { accessToken: string }, private readonly log: Log) {
   }
 
   async postAttribution(attr: Attribution, originalPostId: string): Promise<API.Success<Status | StatusSchedule>> {
 
-    console.log("Logging in...")
+    this.log.log("Logging in...")
 
     const mastodon = new Mastodon.API({
       access_token: this.config.accessToken,
       api_url: "https://mastodon.social/api/v1/"
     })
 
-    console.log("Posting attribution...")
+    this.log.log("Posting attribution...")
 
     const attribution = new MastodonAttributionEntries(attr)
 

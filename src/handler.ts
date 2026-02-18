@@ -10,6 +10,7 @@ import {version} from "./version.js";
 import {retry} from "./util/Retry.js";
 import {HttpStatusError} from "./types/types.js";
 import {blueskyImageScaler, mastodonImageScaler} from "./util/image.js";
+import {Log} from "./util/log.js";
 
 export const handler = async (event: { location?: string | undefined }) => {
 
@@ -26,21 +27,24 @@ export const handler = async (event: { location?: string | undefined }) => {
     imageClientHandle: process.env.BLUESKY_IMAGE_HANDLE
   })
 
+  const blueskyLog = new Log("Bluesky")
+  const mastodonLog = new Log("Mastodon")
+
   const blueskyClient = new BlueskyImage({
     username: process.env.BLUESKY_USERNAME,
     password: process.env.BLUESKY_PASSWORD,
     userAgent: process.env.USER_AGENT,
-  }, attributionClient);
+  }, attributionClient, blueskyLog);
 
   const mastodonAttributionClient = new MastodonAttributionClient({
     accessToken: process.env.MASTODON_ATTRIBUTION_ACCESS_TOKEN
-  })
+  }, mastodonLog)
 
   const mastodonClient = new MastodonImageClient({
     instance_url: process.env.MASTODON_INSTANCE_URL,
     accessToken: process.env.MASTODON_ACCESS_TOKEN,
     userAgent: process.env.USER_AGENT
-  }, mastodonAttributionClient)
+  }, mastodonAttributionClient, mastodonLog)
 
   console.log("fetching image")
 
@@ -48,6 +52,8 @@ export const handler = async (event: { location?: string | undefined }) => {
     attempts: 10,
     fn: async () => {
       const object = await wikimedia.fetchWikimediaObject(event.location)
+
+      console.log("image fetched", JSON.stringify(object.metadata, null, 2))
 
       const [mastodonImage, blueskyImage] = await Promise.all([
         mastodonImageScaler.scale(object.image),
@@ -58,8 +64,6 @@ export const handler = async (event: { location?: string | undefined }) => {
     },
     isFatal: (e: any) => e instanceof HttpStatusError && e.status == 429,
   })).get()
-
-  console.log("image fetched", JSON.stringify(metadata, null, 2))
 
   const results = await Promise.allSettled([
     blueskyClient.post(bluesky, metadata),

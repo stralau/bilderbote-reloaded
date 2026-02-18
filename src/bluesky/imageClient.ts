@@ -3,7 +3,7 @@ import {AtpAgent} from "@atproto/api";
 import {Metadata} from "../types/types.js";
 import {AttributionClient} from "./attributionClient.js";
 import {retry} from "../util/Retry.js";
-import {Result} from "../util/Result.js";
+import {Log} from "../util/log.js";
 
 interface BlueskyConfig {
   username: string,
@@ -14,7 +14,7 @@ interface BlueskyConfig {
 export class BlueskyImage implements PostImageClient {
   private readonly agent: AtpAgent;
 
-  constructor(private readonly config: BlueskyConfig, private readonly attributionClient: AttributionClient) {
+  constructor(private readonly config: BlueskyConfig, private readonly attributionClient: AttributionClient, private readonly log: Log) {
     this.agent = new AtpAgent({
       service: 'https://bsky.social',
       headers: [['User-Agent', config.userAgent]]
@@ -26,11 +26,11 @@ export class BlueskyImage implements PostImageClient {
     const result = await retry({
       attempts: 3,
       fn: async () => {
-        console.log("Logging in...")
+        this.log.log("Logging in...")
         await this.agent.login({identifier: this.config.username, password: this.config.password})
-        console.log(`Posting image: ${metadata.attribution.url}...`)
+        this.log.log(`Posting image: ${metadata.attribution.url}...`)
         const {uri, cid} = await this.postImage(image, metadata);
-        console.log("Just posted! URI: ", uri, " CID: ", cid);
+        this.log.log("Just posted! URI: ", uri, " CID: ", cid);
         return {uri, cid}
       }
     })
@@ -40,9 +40,9 @@ export class BlueskyImage implements PostImageClient {
     await retry({
       attempts: 3,
       fn: async () => {
-        console.log(`Posting attribution for ${metadata.attribution.url}...`)
+        this.log.log(`Posting attribution for ${metadata.attribution.url}...`)
         await this.attributionClient.post(metadata.attribution, cid, uri)
-        console.log("Done!")
+        this.log.log("Done!")
       }
     })
   }
