@@ -57,9 +57,6 @@ export class WikimediaService {
     }
 
     const imageInfo = infos[0]
-
-    const size = imageInfo.size;
-
     const mediaTypeResult = await this.wikimedia.fetchMediaType(imageInfo.url)
 
     return mediaTypeResult.filter(mt => {
