@@ -18,8 +18,8 @@ export class BlueskyAttributionEntries {
   }
   private readonly _attributionEntries: AttributionEntries
 
-  constructor(attribution: Attribution, maxLength?: number) {
-    this._attributionEntries = new AttributionEntries(attribution, maxLength ?? 300)
+  constructor(attribution: Attribution) {
+    this._attributionEntries = new AttributionEntries(attribution, 300)
   }
 
   attributionText(): string {
