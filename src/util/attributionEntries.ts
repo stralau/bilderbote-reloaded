@@ -1,4 +1,5 @@
 import {Attribution} from "../types/types.js";
+import {Result} from "./Result.js";
 
 export class AttributionEntry {
   get value(): string {
@@ -16,13 +17,14 @@ export class AttributionEntry {
     public readonly offset: number,
     key: string,
     private readonly _value: string,
-    private getLength: (str: string) => number,
+    textMeasurer: TextMeasurer,
     maxLength?: number,
     private readonly _link?: string,
   ) {
     const text = `${key}: ${_value}`;
-    this._attributionLength = getLength(text)
-    this._attribution = (maxLength && this._attributionLength > maxLength) ? text.slice(0, maxLength) : text
+    const textLength = textMeasurer.getLength(text)
+    this._attributionLength = (maxLength && textLength > maxLength) ? maxLength : textLength;
+    this._attribution = textMeasurer.slice(text, this._attributionLength).get()
   }
 
   get attributionLength(): number {
@@ -38,11 +40,11 @@ export class AttributionEntry {
 export class AttributionEntries {
   private readonly _entries: AttributionEntry[]
 
-  constructor(attribution: Attribution, private readonly maxLength: number, private getLength: (str: string) => number = utf8Length) {
+  constructor(attribution: Attribution, readonly maxLength: number, textMeasurer: TextMeasurer = defaultTextMeasurer) {
 
-    const urlLength = attribution.url ? getLength(attribution.url) : 0
+    const urlLength = attribution.url ? textMeasurer.getLength(attribution.url) : 0
     const newLines = 3
-    const entryMaxLength = (maxLength - urlLength - newLines) / 3
+    const entryMaxLength = Math.floor((maxLength - urlLength - newLines) / 3)
 
     if (entryMaxLength < 1) throw new Error("Attribution entries too long")
 
@@ -60,7 +62,7 @@ export class AttributionEntries {
     this._entries = entries.reduce(
       (acc, {key, value, maxLength, link}) => {
         const offset = acc.length > 0 ? calculateNextOffset(acc.at(-1)) : 0;
-        const entry = new AttributionEntry(offset, key, value, getLength, maxLength, link);
+        const entry = new AttributionEntry(offset, key, value, textMeasurer, maxLength, link);
         return [...acc, entry];
       },
       [] as AttributionEntry[]
@@ -77,7 +79,22 @@ export class AttributionEntries {
   }
 }
 
+export interface TextMeasurer {
+  getLength(text: string): number
+  slice(text: string, maxLength: number): Result<string>
+}
+
 const encoder = new TextEncoder()
+const decoder = new TextDecoder()
+
+export const defaultTextMeasurer: TextMeasurer = {
+  getLength: (text: string) => utf8Length(text),
+  slice: (text: string, maxLength: number) => {
+    const bytes = encoder.encode(text).slice(0, maxLength);
+    return Result.ok(decoder.decode(bytes));
+  }
+}
+
 
 export function utf8Length(str: string): number {
   return encoder.encode(str).length

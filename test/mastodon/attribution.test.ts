@@ -1,16 +1,16 @@
-import {getLength, MastodonAttributionEntries} from "../../src/mastodon/attribution";
+import {MastodonAttributionEntries, MastodonTextMeasurer} from "../../src/mastodon/attribution";
 import {expect} from "@jest/globals";
 
 test("Calculates length properly", () => {
-  expect(getLength("Hello, World")).toBe(12)
+  expect(new MastodonTextMeasurer().getLength("Hello, World")).toBe(12)
 })
 
 test("URL length is 23", () => {
-  expect(getLength("https://google.com")).toBe(23)
+  expect(new MastodonTextMeasurer().getLength("https://google.com")).toBe(23)
 })
 
 test("URLs in text", () => {
-  expect(getLength("1: https://google.com , 2: https://google.com")).toBe(3 + 23 + 6 + 23)
+  expect(new MastodonTextMeasurer().getLength("1: https://google.com , 2: https://google.com")).toBe(3 + 23 + 6 + 23)
 })
 
 test("On Mastodon, links are always counted as 23 characters", async () => {
