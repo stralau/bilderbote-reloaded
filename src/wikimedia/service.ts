@@ -70,6 +70,6 @@ export class WikimediaService {
     const title: Option<string> = map(optional(imageInfo.extmetadata.ObjectName?.value), sanitiseText);
     const description: Option<string> = map(optional(imageInfo.extmetadata.ImageDescription?.value), sanitiseText);
 
-    return (title || description) ? [title, description].map(toArray).flat().join(" – ") : imageInfo.filename
+    return description ?? title ?? imageInfo.filename
   }
 }
