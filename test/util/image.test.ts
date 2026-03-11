@@ -3,8 +3,8 @@ import {DefaultImageScaler} from "../../src/util/image.js";
 import {expect} from "@jest/globals";
 import {Log} from "../../src/util/log.js";
 
-async function noOpScaleDimensions(buffer: Buffer): Promise<{ buffer: Buffer, counter: number }> {
-  return {buffer, counter: 0}
+async function noOpScaleDimensions(buffer: Buffer): Promise<Buffer> {
+  return buffer
 }
 
 async function imageWithExifMetadata(width: number, height: number, orientation: number | undefined): Promise<Blob> {
