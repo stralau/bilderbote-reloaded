@@ -7,20 +7,42 @@ async function noOpScaleDimensions(buffer: Buffer): Promise<Buffer> {
   return buffer
 }
 
-async function imageWithExifMetadata(width: number, height: number, orientation: number | undefined): Promise<Blob> {
+async function imageWithExifRotation(width: number, height: number): Promise<Blob> {
   const buffer = await sharp({
     create: {width: width, height: height, channels: 3, background: {r: 255, g: 0, b: 0}}
   })
     .jpeg()
-    .withMetadata({orientation: orientation})
+    // orientation 6: Rotate 90º CW
+    .withMetadata({orientation: 6})
     .toBuffer()
 
   return new Blob([new Uint8Array(buffer)], {type: 'image/jpeg'})
 }
 
+async function imageWithExifMirror(width: number, height: number): Promise<Blob> {
+  // Left half blue, right half red, stored with horizontal flip orientation (2).
+  // After correction, left should appear red and right should appear blue.
+  const pixels = Buffer.alloc(width * height * 3)
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const offset = (y * width + x) * 3
+      if (x < width / 2) {
+        pixels[offset] = 0; pixels[offset + 1] = 0; pixels[offset + 2] = 255  // blue
+      } else {
+        pixels[offset] = 255; pixels[offset + 1] = 0; pixels[offset + 2] = 0  // red
+      }
+    }
+  }
+  const buffer = await sharp(pixels, {raw: {width, height, channels: 3}})
+    .jpeg()
+    .withMetadata({orientation: 2})
+    .toBuffer()
+  return new Blob([new Uint8Array(buffer)], {type: 'image/jpeg'})
+}
+
 test('Corrects EXIF orientation', async () => {
   const scaler = new DefaultImageScaler(16 * 1024 * 1024, noOpScaleDimensions, new Log('Test'))
-  const image = await imageWithExifMetadata(100, 50, 6)
+  const image = await imageWithExifRotation(100, 50)
   const scaled = await scaler.scale(image)
 
   const buffer = Buffer.from(await scaled.arrayBuffer())
@@ -33,9 +55,26 @@ test('Corrects EXIF orientation', async () => {
   expect(md.orientation).toBeUndefined()
 })
 
+test('Corrects EXIF mirroring', async () => {
+  const scaler = new DefaultImageScaler(16 * 1024 * 1024, noOpScaleDimensions, new Log('Test'))
+  const image = await imageWithExifMirror(100, 50)
+  const scaled = await scaler.scale(image)
+
+  const buffer = Buffer.from(await scaled.arrayBuffer())
+  const {data, info} = await sharp(buffer).raw().toBuffer({resolveWithObject: true})
+
+  // After correction, left half should be red
+  const leftOffset = (25 * info.width + 10) * info.channels
+  expect(data[leftOffset]).toBeGreaterThan(data[leftOffset + 2])  // red > blue
+
+  // After correction, right half should be blue
+  const rightOffset = (25 * info.width + 90) * info.channels
+  expect(data[rightOffset + 2]).toBeGreaterThan(data[rightOffset])  // blue > red
+})
+
 test('Does not alter images without EXIF orientation', async () => {
   const scaler = new DefaultImageScaler(16 * 1024 * 1024, noOpScaleDimensions, new Log('Test'))
-  const image = await imageWithExifMetadata(100, 50, undefined)
+  const image = await imageWithExifRotation(100, 50)
   const scaled = await scaler.scale(image)
 
   const md = await sharp(Buffer.from(await scaled.arrayBuffer())).metadata()
