@@ -35,12 +35,7 @@ test('Corrects EXIF orientation', async () => {
 
 test('Does not alter images without EXIF orientation', async () => {
   const scaler = new DefaultImageScaler(16 * 1024 * 1024, noOpScaleDimensions, new Log('Test'))
-
-  const buffer = await sharp({
-    create: {width: 100, height: 50, channels: 3, background: {r: 255, g: 0, b: 0}}
-  }).jpeg().toBuffer()
-
-  const image = new Blob([new Uint8Array(buffer)], {type: 'image/jpeg'})
+  const image = await imageWithExifMetadata(100, 50, undefined)
   const scaled = await scaler.scale(image)
 
   const md = await sharp(Buffer.from(await scaled.arrayBuffer())).metadata()
