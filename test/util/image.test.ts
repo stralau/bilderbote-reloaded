@@ -63,11 +63,11 @@ test('Corrects EXIF mirroring', async () => {
   const buffer = Buffer.from(await scaled.arrayBuffer())
   const {data, info} = await sharp(buffer).raw().toBuffer({resolveWithObject: true})
 
-  // After correction, left half should be red
+  // After correction, the left half should be red
   const leftOffset = (25 * info.width + 10) * info.channels
   expect(data[leftOffset]).toBeGreaterThan(data[leftOffset + 2])  // red > blue
 
-  // After correction, right half should be blue
+  // After correction, the right half should be blue
   const rightOffset = (25 * info.width + 90) * info.channels
   expect(data[rightOffset + 2]).toBeGreaterThan(data[rightOffset])  // blue > red
 })
