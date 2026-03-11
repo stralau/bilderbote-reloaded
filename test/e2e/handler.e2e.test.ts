@@ -4,6 +4,7 @@ import * as dotenv from "dotenv";
 import * as Mastodon from "tsl-mastodon-api";
 import {AtpAgent} from "@atproto/api";
 import {sanitiseText} from "../../src/util/text.js";
+import sharp from "sharp";
 
 dotenv.config();
 
@@ -72,3 +73,24 @@ test('reposts successfully', async () => {
 
   expect(result.statusCode).toBe(200)
 }, 30_000)
+
+// https://commons.wikimedia.org/wiki/File:Maribor_(49287269338).jpg
+// This image has EXIF orientation 6 (90° CW). Raw pixels are 4160x3120 (landscape),
+// but the intended display is 3120x4160 (portrait).
+const portraitLocation = 'https://commons.wikimedia.org/wiki/File:Maribor_(49287269338).jpg'
+
+test('Posts image with correct EXIF orientation', async () => {
+  const result = await handler({location: portraitLocation})
+  expect(result.statusCode).toBe(200)
+
+  const mastodonPost = await getLatestMastodonPost()
+  const mastodonMeta = mastodonPost.media_attachments[0].meta.original as any
+  expect(mastodonMeta.height).toBeGreaterThan(mastodonMeta.width)
+
+  const blueskyPost = await getLatestBlueskyPost()
+  const blueskyImageUrl = (blueskyPost.post.embed as any).images[0].fullsize
+  const imageResponse = await fetch(blueskyImageUrl)
+  const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
+  const md = await sharp(imageBuffer).metadata()
+  expect(md.height).toBeGreaterThan(md.width)
+}, 60_000)

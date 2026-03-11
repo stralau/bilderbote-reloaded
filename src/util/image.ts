@@ -10,24 +10,20 @@ type ScaleResult = {
   counter: number,
 }
 
-class DefaultImageScaler implements ImageScaler {
+export class DefaultImageScaler implements ImageScaler {
   constructor(private readonly fileSize: number, private readonly scaleDimensions: (buffer: Buffer, log: Log) => Promise<ScaleResult>, private readonly log: Log) {
   }
 
   public async scale(image: Blob): Promise<Blob> {
 
-    const dimensionScaleResult = await this.scaleDimensions(Buffer.from(await image.arrayBuffer()), this.log)
+    const rotated = await sharp(Buffer.from(await image.arrayBuffer())).rotate().toBuffer()
+    const dimensionScaleResult = await this.scaleDimensions(rotated, this.log)
     const sizeScaleResult = await scaleFileSize(dimensionScaleResult.buffer, this.fileSize, this.log)
-    const counter = dimensionScaleResult.counter + sizeScaleResult.counter
-
-    if (counter == 0) {
-      return image
-    }
 
     const scaled = sizeScaleResult.buffer;
     const md = await sharp(scaled).metadata()
 
-    this.log.log(`Scaled ${counter} time(s). Resized to ${md.width}x${md.height}, ${md.size} bytes.`)
+    this.log.log(`Resized to ${md.width}x${md.height}, ${md.size} bytes.`)
 
     return new Blob([new Uint8Array(scaled)], {type: 'image/jpeg'})
   }
